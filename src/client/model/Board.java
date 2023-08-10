@@ -23,30 +23,45 @@ public class Board {
     }
 
     public void printBoard() {
-        // Top margin
-        System.out.println("  " + new String(new char[SIZE * 3]).replace("\0", "-"));
+        // Top border with "-"
+        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
+
+        // Top margin filled with RED
+        System.out.print("|    ");
+        for (int i = 0; i < SIZE; i++) {
+            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+        }
+        System.out.println("   |");
 
         for (int i = 0; i < SIZE; i++) {
-            System.out.print("| ");  // Left margin
+            System.out.print("| " + ANSI_BLUE + "BB " + ANSI_RESET);  // Left margin
             for (int j = 0; j < SIZE; j++) {
                 switch (board[i][j]) {
                     case RED:
-                        System.out.print(ANSI_RED + "\uD83C\uDF53 " + ANSI_RESET);
+                        System.out.print(ANSI_RED + "RR " + ANSI_RESET);
                         break;
                     case BLUE:
-                        System.out.print(ANSI_BLUE + "\uD83C\uDF46 " + ANSI_RESET);
+                        System.out.print(ANSI_BLUE + "BB " + ANSI_RESET);
                         break;
                     default:
                         System.out.print(ANSI_GREEN + String.format("%02d ", i * SIZE + j) + ANSI_RESET);
                         break;
                 }
             }
-            System.out.println("|");  // Right margin
+            System.out.println(ANSI_BLUE + "BB " + ANSI_RESET + "|");  // Right margin
         }
 
-        // Bottom margin
-        System.out.println("  " + new String(new char[SIZE * 3]).replace("\0", "-"));
+        // Bottom margin filled with RED
+        System.out.print("|    ");
+        for (int i = 0; i < SIZE; i++) {
+            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+        }
+        System.out.println("   |");
+
+        // Bottom border with "-"
+        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
     }
+
 
     public Color getFieldColor(int row, int col) {
         row--;
@@ -97,11 +112,5 @@ public class Board {
     public static void main(String[] args) {
         Board board = new Board();
         board.printBoard();
-        setField(2,2, Color.RED);
-        setField(2,2, Color.RED);
-        board.printBoard();
-        setField(2,3, Color.BLUE);
-        board.printBoard();
-
     }
 }
