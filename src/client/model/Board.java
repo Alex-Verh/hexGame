@@ -1,8 +1,8 @@
 package client.model;
 
 public class Board {
-    private static final int SIZE = 9;
-    //@private invariant SIZE > 0;
+    public static final int SIZE = 9;
+    //@public invariant SIZE > 0;
 
 
     /* ANSI Color codes for console display */
@@ -150,7 +150,7 @@ public class Board {
         return true;
     }
 
-    // TODO: remove on deployment
+    //TODO: remove on deployment
     public static void main(String[] args) {
         Board board = new Board();
         board.printBoard();
