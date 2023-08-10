@@ -2,7 +2,7 @@ package client.model;
 
 public class Board {
     private static final int SIZE = 9;
-    //@ private invariant SIZE > 0;
+    //@private invariant SIZE > 0;
 
 
     /* ANSI Color codes for console display */
@@ -16,7 +16,7 @@ public class Board {
     //@private invariant board.length == SIZE;
     //@private invariant (\forall int i; 0 <= i && i < SIZE; board[i].length == SIZE);
 
-    //@ ensures (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
+    //@ensures (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
     public Board() {
         board = new Color[SIZE][SIZE];
         for (int row = 0; row < SIZE; row++) {
@@ -24,11 +24,6 @@ public class Board {
                 board[row][col] = Color.EMPTY;
             }
         }
-    }
-
-    /* Represents the color on a board cell */
-    enum Color {
-        EMPTY, RED, BLUE;
     }
 
     /* Prints the board with appropriate colors */
@@ -78,9 +73,9 @@ public class Board {
      * @param col Column of the cell
      * @return Color of the cell
      **/
-    //@ requires 1 <= row && row <= SIZE;
-    //@ requires 1 <= col && col <= SIZE;
-    //@ ensures \result == board[row-1][col-1];
+    //@requires 1 <= row && row <= SIZE;
+    //@requires 1 <= col && col <= SIZE;
+    //@ensures \result == board[row-1][col-1];
     public Color getFieldColor(int row, int col) {
         row--;
         col--;
@@ -97,9 +92,9 @@ public class Board {
      * @param col Column of the cell
      * @param color Color to set the cell to
      **/
-    //@ requires 1 <= row && row <= SIZE;
-    //@ requires 1 <= col && col <= SIZE;
-    //@ ensures board[row-1][col-1] == color;
+    //@requires 1 <= row && row <= SIZE;
+    //@requires 1 <= col && col <= SIZE;
+    //@ensures board[row-1][col-1] == color;
     public static void setField(int row, int col, Color color) {
         row--;
         col--;
@@ -116,9 +111,9 @@ public class Board {
      * @param col Column of the cell
      * @return true if cell is empty, false otherwise
      **/
-    //@ requires 1 <= row && row <= SIZE;
-    //@ requires 1 <= col && col <= SIZE;
-    //@ ensures \result == (board[row-1][col-1] == Color.EMPTY);
+    //@requires 1 <= row && row <= SIZE;
+    //@requires 1 <= col && col <= SIZE;
+    //@ensures \result == (board[row-1][col-1] == Color.EMPTY);
     public boolean isFieldEmpty(int row, int col) {
         return getFieldColor(row, col) == Color.EMPTY;
     }
@@ -127,7 +122,7 @@ public class Board {
      * Checks if the entire board is full
      * @return true if the board is full, false otherwise
      **/
-    //@ ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] != Color.EMPTY));
+    //@ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] != Color.EMPTY));
     public boolean isBoardFull() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -143,7 +138,7 @@ public class Board {
      * Checks if the entire board is empty
      * @return true if the board is empty, false otherwise
      **/
-    //@ ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
+    //@ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
     public boolean isBoardEmpty() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
