@@ -149,10 +149,4 @@ public class Board {
         }
         return true;
     }
-
-    //TODO: remove on deployment
-    public static void main(String[] args) {
-        Board board = new Board();
-        board.printBoard();
-    }
 }
