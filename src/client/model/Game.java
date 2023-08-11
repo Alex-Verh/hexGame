@@ -51,6 +51,23 @@ public class Game {
     }
 
     /**
+     * Gets player that has to move at the moment.
+     * @return currentPlayer that has to move
+     */
+    //@ensures \result == player1 || \result == player2;
+    //@pure;
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    /**
+     * Switch to the next player.
+     */
+    private void switchCurrentPlayer() {
+        currentPlayer = (currentPlayer == player1) ? player2 : player1;
+    }
+
+    /**
      * Counts the number of red and blue fields on the board.
      * @return A list where the first integer is the count of red fields
      * and the second integer is the count of blue fields.
@@ -105,4 +122,40 @@ public class Game {
             }
         }
     }
+
+    /**
+     * Make a move on the board.
+     *
+     * @param move The move to be made.
+     */
+    public void makeMove(Move move) {
+        // Check if move is valid
+        if (move != null && getValidMoves().contains(move)) {
+            List<Integer> counts = countFields();
+            int redFields = counts.get(0);
+            int blueFields = counts.get(1);
+
+            // Check if the move is a special swap move
+            if (move.getRow() == -1 && move.getCol() == -1 && move.getColor() == Color.BLUE) {
+                // Get the position of the RED piece on the board (assuming there's only one, since it's the second move)
+                for (int i = 1; i <= Board.SIZE; i++) {
+                    for (int j = 1; j <= Board.SIZE; j++) {
+                        if (board.getFieldColor(i, j) == Color.RED) {
+                            board.swapField(i, j);
+                            switchCurrentPlayer();
+                            return;
+                        }
+                    }
+                }
+                System.out.println("No RED piece to be swapped!");
+            }
+
+            // Place the player's color on the board
+            board.setField(move.getRow() + 1, move.getCol() + 1, move.getColor());
+            switchCurrentPlayer();
+        } else {
+            System.out.println("Illegal Move.");
+        }
+    }
+
 }

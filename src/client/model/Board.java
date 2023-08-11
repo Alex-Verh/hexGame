@@ -13,9 +13,8 @@ public class Board {
 
     private static Color[][] board;
     //@private invariant board != null;
-    //@private invariant board.length == SIZE;
-    //@private invariant (\forall int i; 0 <= i && i < SIZE; board[i].length == SIZE);
 
+    //@ensures board.length == SIZE;
     //@ensures (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
     public Board() {
         board = new Color[SIZE][SIZE];
@@ -95,7 +94,7 @@ public class Board {
     //@requires 1 <= row && row <= SIZE;
     //@requires 1 <= col && col <= SIZE;
     //@ensures board[row-1][col-1] == color;
-    public static void setField(int row, int col, Color color) {
+    public void setField(int row, int col, Color color) {
         row--;
         col--;
 
@@ -148,5 +147,31 @@ public class Board {
             }
         }
         return true;
+    }
+
+    /**
+     * Swap a colored field and move it parallel to the main diagonal.
+     * @param row Row of the colored field.
+     * @param col Column of the colored field.
+     */
+    public void swapField(int row, int col) {
+        // Validate that the field contains a RED piece
+        if (getFieldColor(row, col) != Color.RED) {
+            throw new IllegalArgumentException("Can only swap a RED colored field.");
+        }
+
+        // Change color to BLUE
+        setField(row, col, Color.BLUE);
+
+        // Move it parallel to the main diagonal. If the field is below the diagonal, it moves up,
+        // and if it's above, it moves down.
+        if (row > col) {
+            setField(row - 1, col + 1, Color.BLUE);
+            setField(row, col, Color.EMPTY);
+        } else if (row < col) {
+            setField(row + 1, col - 1, Color.BLUE);
+            setField(row, col, Color.EMPTY);
+        }
+        // If it's on the diagonal, it remains unchanged except for the color swap
     }
 }
