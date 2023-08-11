@@ -26,45 +26,101 @@ public class Board {
     }
 
     /* Prints the board with appropriate colors */
-    public void printBoard() {
-        // Top border with "-"
-        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
+//    public void printBoard() {
+//        // Top border with "-"
+//        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
+//
+//        // Top margin filled with RED
+//        System.out.print("|    ");
+//        for (int i = 0; i < SIZE; i++) {
+//            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+//        }
+//        System.out.println("   |");
+//
+//        for (int i = 0; i < SIZE; i++) {
+//            System.out.print("| " + ANSI_BLUE + "BB " + ANSI_RESET);  // Left margin
+//            for (int j = 0; j < SIZE; j++) {
+//                switch (board[i][j]) {
+//                    case RED:
+//                        System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+//                        break;
+//                    case BLUE:
+//                        System.out.print(ANSI_BLUE + "BB " + ANSI_RESET);
+//                        break;
+//                    default:
+//                        System.out.print(ANSI_GREEN + String.format("%02d ", i * SIZE + j) + ANSI_RESET);
+//                        break;
+//                }
+//            }
+//            System.out.println(ANSI_BLUE + "BB " + ANSI_RESET + "|");  // Right margin
+//        }
+//
+//        // Bottom margin filled with RED
+//        System.out.print("|    ");
+//        for (int i = 0; i < SIZE; i++) {
+//            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+//        }
+//        System.out.println("   |");
+//
+//        // Bottom border with "-"
+//        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
+//    }
 
-        // Top margin filled with RED
-        System.out.print("|    ");
-        for (int i = 0; i < SIZE; i++) {
-            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
-        }
-        System.out.println("   |");
+    public void displayBoard() {
+        int size = SIZE;
+        System.out.println("==============================================================");
+        for (int row = 0; row < size; row++) {
+            String indent = " ".repeat(row * 2);
 
-        for (int i = 0; i < SIZE; i++) {
-            System.out.print("| " + ANSI_BLUE + "BB " + ANSI_RESET);  // Left margin
-            for (int j = 0; j < SIZE; j++) {
-                switch (board[i][j]) {
+            // For the first row, we only print the top hexes
+            if (row == 0) {
+                System.out.print(indent);
+                for (int col = 0; col < size; col++) {
+                    System.out.print(" ");
+                    System.out.print("/‾‾\\");
+                }
+                System.out.println();
+            }
+
+            System.out.print(indent);
+
+            // Middle part of hexagons
+            for (int col = 0; col < size; col++) {
+                int index = row * size + col;
+                switch (board[row][col]) {
                     case RED:
-                        System.out.print(ANSI_RED + "RR " + ANSI_RESET);
+                        System.out.print("| " + ANSI_RED + "RR" + ANSI_RESET + " ");
                         break;
                     case BLUE:
-                        System.out.print(ANSI_BLUE + "BB " + ANSI_RESET);
+                        System.out.print("| " + ANSI_BLUE + "BB" + ANSI_RESET + " ");
                         break;
                     default:
-                        System.out.print(ANSI_GREEN + String.format("%02d ", i * SIZE + j) + ANSI_RESET);
+                        System.out.print("| " + ANSI_GREEN + String.format("%2s", index) + ANSI_RESET + " ");
                         break;
                 }
             }
-            System.out.println(ANSI_BLUE + "BB " + ANSI_RESET + "|");  // Right margin
-        }
+            System.out.println("|");
 
-        // Bottom margin filled with RED
-        System.out.print("|    ");
-        for (int i = 0; i < SIZE; i++) {
-            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
-        }
-        System.out.println("   |");
+            System.out.print(indent + " ");
 
-        // Bottom border with "-"
-        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
+            // Bottom part of hexagons
+            for (int col = 0; col < size; col++) {
+                System.out.print("\\__/‾");
+            }
+            if(row != size - 1) { // not printing the last '\'
+                System.out.print("\\");
+                System.out.println();
+
+            } else {
+                System.out.println();
+            }
+        }
+        System.out.println("==============================================================");
+
     }
+
+
+
 
     /**
      * Retrieves the color of the cell at a given row and column
@@ -160,18 +216,10 @@ public class Board {
             throw new IllegalArgumentException("Can only swap a RED colored field.");
         }
 
-        // Change color to BLUE
-        setField(row, col, Color.BLUE);
+        // Set the current position to EMPTY
+        setField(row, col, Color.EMPTY);
 
-        // Move it parallel to the main diagonal. If the field is below the diagonal, it moves up,
-        // and if it's above, it moves down.
-        if (row > col) {
-            setField(row - 1, col + 1, Color.BLUE);
-            setField(row, col, Color.EMPTY);
-        } else if (row < col) {
-            setField(row + 1, col - 1, Color.BLUE);
-            setField(row, col, Color.EMPTY);
-        }
-        // If it's on the diagonal, it remains unchanged except for the color swap
+        // Directly swap row and col values
+        setField(col, row, Color.BLUE);
     }
 }
