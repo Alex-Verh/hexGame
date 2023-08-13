@@ -26,65 +26,29 @@ public class Board {
     }
 
     /* Prints the board with appropriate colors */
-//    public void printBoard() {
-//        // Top border with "-"
-//        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
-//
-//        // Top margin filled with RED
-//        System.out.print("|    ");
-//        for (int i = 0; i < SIZE; i++) {
-//            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
-//        }
-//        System.out.println("   |");
-//
-//        for (int i = 0; i < SIZE; i++) {
-//            System.out.print("| " + ANSI_BLUE + "BB " + ANSI_RESET);  // Left margin
-//            for (int j = 0; j < SIZE; j++) {
-//                switch (board[i][j]) {
-//                    case RED:
-//                        System.out.print(ANSI_RED + "RR " + ANSI_RESET);
-//                        break;
-//                    case BLUE:
-//                        System.out.print(ANSI_BLUE + "BB " + ANSI_RESET);
-//                        break;
-//                    default:
-//                        System.out.print(ANSI_GREEN + String.format("%02d ", i * SIZE + j) + ANSI_RESET);
-//                        break;
-//                }
-//            }
-//            System.out.println(ANSI_BLUE + "BB " + ANSI_RESET + "|");  // Right margin
-//        }
-//
-//        // Bottom margin filled with RED
-//        System.out.print("|    ");
-//        for (int i = 0; i < SIZE; i++) {
-//            System.out.print(ANSI_RED + "RR " + ANSI_RESET);
-//        }
-//        System.out.println("   |");
-//
-//        // Bottom border with "-"
-//        System.out.println("  " + new String(new char[(SIZE + 2) * 3]).replace("\0", "-"));
-//    }
-
     public void displayBoard() {
         int size = SIZE;
-        System.out.println("==============================================================");
+        System.out.println(ANSI_RED + "====================================================================" + ANSI_RESET);
+
         for (int row = 0; row < size; row++) {
             String indent = " ".repeat(row * 2);
+            String rightPadding = "  ".repeat(size - row); // This will pad to the right
 
-            // For the first row, we only print the top hexes
+            System.out.print(ANSI_BLUE + "║ " + ANSI_RESET); // Left border
+
             if (row == 0) {
                 System.out.print(indent);
                 for (int col = 0; col < size; col++) {
                     System.out.print(" ");
                     System.out.print("/‾‾\\");
                 }
-                System.out.println();
+                System.out.print(rightPadding); // Added for the right alignment
+                System.out.println(ANSI_BLUE + "  ║" + ANSI_RESET); // Right border
+                System.out.print(ANSI_BLUE + "║ " + ANSI_RESET); // Left border
             }
 
             System.out.print(indent);
 
-            // Middle part of hexagons
             for (int col = 0; col < size; col++) {
                 int index = row * size + col;
                 switch (board[row][col]) {
@@ -95,31 +59,33 @@ public class Board {
                         System.out.print("| " + ANSI_BLUE + "BB" + ANSI_RESET + " ");
                         break;
                     default:
-                        System.out.print("| " + ANSI_GREEN + String.format("%2s", index) + ANSI_RESET + " ");
+                        System.out.print("| " + ANSI_GREEN + String.format("%02d", index) + ANSI_RESET + " ");
                         break;
                 }
             }
-            System.out.println("|");
-
+            System.out.print("|");
+            System.out.print(rightPadding); // Added for the right alignment
+            System.out.println(ANSI_BLUE + " ║" + ANSI_RESET); // Right border
+            System.out.print(ANSI_BLUE + "║ " + ANSI_RESET); // Left border
             System.out.print(indent + " ");
 
-            // Bottom part of hexagons
             for (int col = 0; col < size; col++) {
                 System.out.print("\\__/‾");
             }
-            if(row != size - 1) { // not printing the last '\'
-                System.out.print("\\");
-                System.out.println();
 
+            if (row != size - 1) {
+                System.out.print("\\");
+            }
+
+            System.out.print(rightPadding); // Added for the right alignment
+            if (row == size - 1) {
+                System.out.println(ANSI_BLUE + " ║" + ANSI_RESET); // Right border
             } else {
-                System.out.println();
+                System.out.println(ANSI_BLUE + "║" + ANSI_RESET); // Right border
             }
         }
-        System.out.println("==============================================================");
-
+        System.out.println(ANSI_RED + "====================================================================" + ANSI_RED);
     }
-
-
 
 
     /**
@@ -221,5 +187,10 @@ public class Board {
 
         // Directly swap row and col values
         setField(col, row, Color.BLUE);
+    }
+
+    public static void main(String[] args) {
+        Board bord = new Board();
+        bord.displayBoard();
     }
 }
