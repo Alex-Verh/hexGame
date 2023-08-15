@@ -42,7 +42,7 @@ public interface Player {
      * @return the move that this player wants to make
      */
     //@requires game != null;
-    //@requires game.getBoard() != null && !game.isGameOver();
+    //@requires game.getBoard() != null && !game.isFinished();
     //@ensures game.getValidMoves().contains(\result);
     Move move(Game game);
 

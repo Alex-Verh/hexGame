@@ -117,7 +117,7 @@ public class Game {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
                 if (board.isFieldEmpty(row + 1, col + 1)) {  // adjusting to 1-indexed
-                    validMoves.add(new Move(row, col, currentPlayer.getColor()));
+                    validMoves.add(new Move(row + 1, col + 1, currentPlayer.getColor()));
                 }
             }
         }
@@ -151,11 +151,154 @@ public class Game {
             }
 
             // Place the player's color on the board
-            board.setField(move.getRow() + 1, move.getCol() + 1, move.getColor());
+            board.setField(move.getRow(), move.getCol(), move.getColor());
             switchCurrentPlayer();
         } else {
             System.out.println("Illegal Move.");
         }
     }
 
+    /**
+     * Checks if game is finished.
+     * @return true || false if game is over or not
+     */
+    //@ensures getBoard().isBoardFull() || getValidMoves().isEmpty();
+    //@pure;
+    public boolean isFinished() {
+        return board.isBoardFull() || getValidMoves().isEmpty() || (getWinner() == player1 || getWinner() == player2);
+    }
+
+    /**
+     * Gets the winner of the game, decided by a connection of hexagons between vertical and horizontal lines.
+     * Uses Depth First Search (DFS) to determine if a player has a winning path from one side of the board to the other.
+     *
+     * @return the winning player if one exists, null otherwise
+     */
+    //@ ensures \result == player1 || \result == player2 || \result == null;
+    //@ pure;
+    public Player getWinner() {
+        // Check for a winning path for Player 1 (assume they connect top to bottom)
+        for (int col = 1; col <= Board.SIZE; col++) {
+            if (board.getFieldColor(1, col) == player1.getColor()) {
+                if (dfs(1, col, player1.getColor(), new boolean[Board.SIZE][Board.SIZE])) {
+                    return player1;
+                }
+            }
+        }
+
+        // Check for a winning path for Player 2 (assume they connect left to right)
+        for (int row = 1; row <= Board.SIZE; row++) {
+            if (board.getFieldColor(row, 1) == player2.getColor()) {
+                if (dfs(row, 1, player2.getColor(), new boolean[Board.SIZE][Board.SIZE])) {
+                    return player2;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Depth First Search (DFS) to check if the specified color has a winning path on the board.
+     * The DFS starts from the given row and col and explores possible paths in depth to check if the player with the specified color has a winning path.
+     *
+     * @param row The starting row of the DFS.
+     * @param col The starting column of the DFS.
+     * @param color The color for which we are checking the path.
+     * @param visited A 2D boolean array that keeps track of which board positions have already been visited in this DFS.
+     * @return true if the color has a winning path starting from the given row and col, false otherwise.
+     */
+    //@ requires 0 <= row && row < Board.SIZE && 0 <= col && col < Board.SIZE;
+    //@ requires color != null && color != Color.EMPTY;
+    //@ requires visited != null && visited.length == Board.SIZE && (\forall int i; 0 <= i && i < Board.SIZE; visited[i].length == Board.SIZE);
+    //@ ensures \result == true || \result == false;
+    //@ pure;
+    private boolean dfs(int row, int col, Color color, boolean[][] visited) {
+        if (row < 1 || col < 1 || row > Board.SIZE || col > Board.SIZE) {
+            return false;
+        }
+
+        if (board.getFieldColor(row, col) != color || visited[row-1][col-1]) {
+            return false;
+        }
+
+        if ((color == player1.getColor() && row == Board.SIZE) || (color == player2.getColor() && col == Board.SIZE)) {
+            return true;
+        }
+
+        visited[row-1][col-1] = true;
+
+        int[][] directions = {
+                {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, 1}, {1, -1}
+        };
+
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+
+            if (dfs(newRow, newCol, color, visited)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+//    public static void main(String[] args) {
+//        // Step 1: Create a board and two player objects.
+//        Board board = new Board();
+//        Player player1 = new AbstractPlayer(Color.RED, board, "Player1");
+//        Player player2 = new AbstractPlayer(Color.BLUE, board, "Player2");
+//        player1.setOpponent(player2);
+//        player2.setOpponent(player1);
+//
+//        // Step 2: Instantiate the game.
+//        Game game = new Game(board, player1, player2);
+//
+//        // Step 3: Simulate some moves.
+//
+//        // Player 1 moves
+//        game.makeMove(new Move(1, 1, player1.getColor()));  // Top-left corner
+//        game.makeMove(new Move(1, 2, player2.getColor()));  // Top, one step to the right
+//
+//        game.makeMove(new Move(2, 1, player1.getColor()));  // One step diagonally
+//        game.makeMove(new Move(2, 2, player2.getColor()));  // Left, one step down
+//
+//        game.makeMove(new Move(3, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(3, 2, player2.getColor()));  // Left, one step down
+//        game.makeMove(new Move(4, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(4, 2, player2.getColor()));  // Another diagonal
+//        game.makeMove(new Move(5, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(5, 2, player2.getColor()));  // Another diagonal
+//        game.makeMove(new Move(6, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(6, 2, player2.getColor()));  // Another diagonal        game.makeMove(new Move(5, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(7, 1, player1.getColor()));  // Another diagonal        game.makeMove(new Move(5, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(7, 2, player2.getColor()));  // Another diagonal
+//        game.makeMove(new Move(8, 1, player1.getColor()));  // Another diagonal        game.makeMove(new Move(5, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(8, 2, player2.getColor()));
+//        game.makeMove(new Move(9, 3, player1.getColor()));  // Another diagonal        game.makeMove(new Move(5, 1, player1.getColor()));  // Another diagonal
+//        game.makeMove(new Move(9, 2, player2.getColor()));
+//
+//        // Player 2 moves
+//
+//        // More moves can be added here for further testing
+//
+//        // Check the winner
+//        AbstractPlayer winner = (AbstractPlayer) game.getWinner();
+//        if (winner != null) {
+//            System.out.println(winner.getName() + " is the winner!");
+//        } else {
+//            System.out.println("No winner yet.");
+//        }
+//
+//        // Check if the game is finished
+//        if (game.isFinished()) {
+//            System.out.println("The game is over.");
+//        } else {
+//            System.out.println("The game is still ongoing.");
+//        }
+//
+//        // You can also print the board state here to visualize it
+//        board.displayBoard();
+//    }
 }
