@@ -27,4 +27,23 @@ public interface Player {
     //@pure
     Player getOpponent();
 
+    /**
+     * Returns the board of this player.
+     *
+     * @return The board.
+     **/
+    //@ensures \result != null;
+    //@pure;
+    Board getBoard();
+
+    /**
+     * This method is called when it is this player's turn to make a move.
+     * @param game the game that is being played
+     * @return the move that this player wants to make
+     */
+    //@requires game != null;
+    //@requires game.getBoard() != null && !game.isGameOver();
+    //@ensures game.getValidMoves().contains(\result);
+    Move move(Game game);
+
 }
