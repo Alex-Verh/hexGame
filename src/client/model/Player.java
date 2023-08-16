@@ -1,5 +1,7 @@
 package client.model;
 
+import client.controller.Protocol;
+
 public interface Player {
 
     /**
@@ -44,7 +46,7 @@ public interface Player {
     //@requires game != null;
     //@requires game.getBoard() != null && !game.isFinished();
     //@ensures game.getValidMoves().contains(\result);
-    Move move(Game game);
+    Move move(Game game, Protocol protocol);
 
     /**
      * Copies a player.

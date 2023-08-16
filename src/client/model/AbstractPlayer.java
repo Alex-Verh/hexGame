@@ -1,5 +1,7 @@
 package client.model;
 
+import client.controller.Protocol;
+
 /**
  * Abstract Player that implements Player interface.
  */
@@ -19,7 +21,7 @@ public class AbstractPlayer implements Player {
 
     /**
      * Creates a new AbstractPlayer player.
-     * @param color the color of the pl ayer
+     * @param color the color of the player
      * @param board the board of the game
      * @param name the name of the player
      */
@@ -86,7 +88,7 @@ public class AbstractPlayer implements Player {
      * @return the move that this player wants to make
      */
     @Override
-    public Move move(Game game) {
+    public Move move(Game game, Protocol protocol) {
         return null;
     }
 

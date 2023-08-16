@@ -123,6 +123,10 @@ public class Game {
         }
     }
 
+    public boolean isValidMove(Move move) {
+        return getValidMoves().contains(move);
+    }
+
     /**
      * Make a move on the board.
      *

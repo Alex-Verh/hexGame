@@ -76,8 +76,7 @@ public class Protocol {
     //@requires !message.isEmpty();
     //@pure;
     public void sendMessage(String message) throws IOException {
-        String finalMessage = message.replace("\\", "\\\\");
-        finalMessage = finalMessage.replace("~", "\\~");
+        String finalMessage = escape(message);
         writer.write("CHAT~" + finalMessage + "\n");
         writer.flush();
     }
@@ -114,16 +113,20 @@ public class Protocol {
 
     /**
      * Sends message to a user.
-     * @param username the username of the user
+         * @param username the username of the user
      * @param message the message to be sent
      * @throws IOException if an I/O error occurs when sending the message
      */
     //@requires !username.isEmpty() && !message.isEmpty() && username.length() <= 20;
     //@pure;
     public void sendWhisper(String username, String message) throws IOException {
-        String finalMessage = message.replace("\\", "\\\\");
-        finalMessage = finalMessage.replace("~", "\\~");
+        String finalMessage = escape(message);
         writer.write("WHISPER~" + username + "~" + finalMessage + "\n");
         writer.flush();
+    }
+
+    // Apply escape characters for special characters
+    private String escape(String str) {
+        return str.replace("\\", "\\\\").replace("~", "\\~");
     }
 }
