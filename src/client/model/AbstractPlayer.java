@@ -91,6 +91,18 @@ public class AbstractPlayer implements Player {
     }
 
     /**
+     * Copies a player.
+     *
+     * @return player copy
+     */
+    @Override
+    public Player deepCopy() {
+        Player player = new AbstractPlayer(color, board, name);
+        player.setOpponent(opponent);
+        return player;
+    }
+
+    /**
      * Returns the name of this player.
      *
      * @return The name.

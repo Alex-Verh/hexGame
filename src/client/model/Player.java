@@ -46,4 +46,12 @@ public interface Player {
     //@ensures game.getValidMoves().contains(\result);
     Move move(Game game);
 
+    /**
+     * Copies a player.
+     * @return player copy
+     */
+    //@ensures this != \result;
+    //@ensures \result != null;
+    Player deepCopy();
+
 }

@@ -244,6 +244,24 @@ public class Game {
         return false;
     }
 
+    /**
+     * Returns a copy of the game.
+     * @return the copy of the game
+     */
+    //@ensures \result != this;
+    /*@requires !this.getBoard().isBoardFull() && this.getBoard() != null &&
+        this.player1.getColor() != Color.EMPTY && this.player1.getOpponent() != null &&
+            this.player1 != null && this.player2.getColor() != Color.EMPTY &&
+                this.player2.getOpponent() != null && this.player2 != null; */
+    public Game deepCopy() {
+        Board newBoard = board.deepCopy();
+        Player newPlayer1 = player1.deepCopy();
+        Player newPlayer2 = player2.deepCopy();
+        Game copyGame = new Game(newBoard, newPlayer1, newPlayer2);
+        copyGame.currentPlayer = currentPlayer;
+        return copyGame;
+    }
+
 //    public static void main(String[] args) {
 //        // Step 1: Create a board and two player objects.
 //        Board board = new Board();

@@ -189,8 +189,19 @@ public class Board {
         setField(col, row, Color.BLUE);
     }
 
-    public static void main(String[] args) {
-        Board bord = new Board();
-        bord.displayBoard();
+    /**
+     * Returns a deep copy of the current board.
+     * @return a deep copy of the current board
+     */
+    //@ensures \result != this;
+    //@ensures (\forall int i; (i >= 0 && i < SIZE*SIZE); \result.board[i] == this.board[i]);
+    public Board deepCopy() {
+        Board deepCopy = new Board();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                deepCopy.setField(i, j, this.getFieldColor(i, j));
+            }
+        }
+        return deepCopy;
     }
 }
