@@ -111,9 +111,10 @@ public class Game {
 
     /**
      * Add valid moves for empty fields for current player
-     * @param validMoves
+     * @param validMoves - list of valid moves
      */
     private void addValidMoves(List<Move> validMoves) {
+        validMoves.clear();
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
                 if (board.isFieldEmpty(row + 1, col + 1)) {  // adjusting to 1-indexed
@@ -123,8 +124,29 @@ public class Game {
         }
     }
 
+    /**
+     * Checks if a move is valid
+     * @param move that is checked
+     * @return true || false
+     */
     public boolean isValidMove(Move move) {
         return getValidMoves().contains(move);
+    }
+
+    /**
+     * Returns a winning move is such exists
+     * @return
+     */
+    public Move getWinningMove() {
+        List<Move> validMoves = getValidMoves();
+        for (Move move : validMoves) {
+            Game hypotheticalGame = deepCopy(); // Assuming you have a deepCopy() method in the Game class
+            hypotheticalGame.makeMove(move); // Assuming you have a makeMove() method in the Game class
+            if (hypotheticalGame.isFinished() && hypotheticalGame.getWinner() == this) {
+                return move;  // This move would make the AI player win
+            }
+        }
+        return null;
     }
 
     /**

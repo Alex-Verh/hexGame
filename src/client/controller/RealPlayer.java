@@ -4,6 +4,7 @@ import client.model.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * Real player class that does indicate moves.
@@ -40,8 +41,28 @@ public class RealPlayer extends AbstractPlayer {
     //@pure;
     @Override
     public Move move(Game game, Protocol protocol) {
-        return null;
+        System.out.println("It's your move, " + getName() + ".");
+
+        Move playerMove;
+        try {
+            playerMove = getMove(game);
+            protocol.sendMove(playerMove.hashCode());
+            //reads the move from the server
+            String data = reader1.readLine();
+            //check if the game is over
+            if (data.equals("GAMEOVER")) {
+                System.out.println("The game has been finished.");
+                return null;
+            } else {
+                return new Move(Integer.parseInt(data.split("~")[1]) / Board.SIZE,
+                        Integer.parseInt(data.split("~")[1]) % Board.SIZE, getColor());
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading or sending the move. Please try again.");
+            return null;
+        }
     }
+
 
     /**
      * Gets the move from the console.
@@ -56,10 +77,16 @@ public class RealPlayer extends AbstractPlayer {
     private Move getMove(Game game) throws IOException {
         while (true) {
             try {
-                //TODO: Add suggestion of move
-                System.out.println("PLease enter the index of the field.");
+                System.out.println("Please enter the index of the field or 'suggest' for a suggestion.");
 
                 String command = reader2.readLine();
+
+                if ("suggest".equalsIgnoreCase(command)) {
+                    Move suggestedMove = suggestMove(game);
+                    int suggestedIndex = suggestedMove.getRow() * Board.SIZE + suggestedMove.getCol();
+                    System.out.println("Suggested move: " + suggestedIndex);
+                    continue;
+                }
 
                 int index = Integer.parseInt(command);
                 Move move = new Move(index / Board.SIZE, index % Board.SIZE, getColor());
@@ -75,6 +102,18 @@ public class RealPlayer extends AbstractPlayer {
             }
         }
     }
+
+
+    private Move suggestMove(Game game) {
+        Move winningMove = game.getWinningMove();
+        if (winningMove != null) {
+            return winningMove;
+        }
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(game.getValidMoves().size());
+        return game.getValidMoves().get(randomIndex);
+    }
+
 
     /**
      * Copies a player.

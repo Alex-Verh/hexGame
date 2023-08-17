@@ -3,6 +3,9 @@ package client.controller;
 import client.model.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 public class AIPlayer extends AbstractPlayer {
     private final BufferedReader reader;
@@ -21,7 +24,7 @@ public class AIPlayer extends AbstractPlayer {
     }
 
     /**
-     * Determines the move of the player.
+     * Determines the move of the AI player.
      * @param game the game
      * @param protocol the sender that is used to send messages to the server
      * @return the move of the player
@@ -32,7 +35,44 @@ public class AIPlayer extends AbstractPlayer {
     //@pure;
     @Override
     public Move move(Game game, Protocol protocol) {
-        return null;
+        System.out.println("It's AI move, " + getName() + ".");
+
+        Move moveAI;
+        try {
+            moveAI = getMove(game);
+            protocol.sendMove(moveAI.hashCode());
+            //reads the move from the server
+            String data = reader.readLine();
+            //check if the game is over
+            if (data.equals("GAMEOVER")) {
+                System.out.println("The game has been finished.");
+                return null;
+            } else {
+                return new Move(Integer.parseInt(data.split("~")[1]) / Board.SIZE,
+                        Integer.parseInt(data.split("~")[1]) % Board.SIZE, getColor());
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading or sending the move. Please try again.");
+            return null;
+        }
+    }
+
+    /**
+     * Gets the move from AI.
+     * @param game the game
+     * @return the move of the AI
+     */
+    //@requires game != null && game.getBoard() != null && !game.isFinished();
+    //@ensures \result.getColor() == this.getColor() && \old(game.getValidMoves()).contains(\result);
+    //@pure;
+    private Move getMove(Game game) {
+        Move winningMove = game.getWinningMove();
+        if (winningMove != null) {
+            return winningMove;
+        }
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(game.getValidMoves().size());
+        return game.getValidMoves().get(randomIndex);
     }
 
     /**
