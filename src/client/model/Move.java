@@ -36,7 +36,7 @@ public class Move {
      * @return The row.
      **/
     //@pure
-    public int getRow() {
+        public int getRow() {
         return row;
     }
 
