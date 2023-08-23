@@ -1,5 +1,7 @@
 package server.view;
 
+import server.controller.Server;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -27,13 +29,14 @@ public class ServerTUI {
                 System.out.println("Invalid characters");
             }
         }
-        //TODO: Create and start server here
+        Server server = new Server(port);
+        server.start();
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("`STOP` - to stop the server");
             String command = scanner.nextLine();
             if (command.equalsIgnoreCase("STOP")) {
-                //TODO: Stop server here
+                server.stop();
                 break;
             }
         }

@@ -53,47 +53,6 @@ public class ClientTUI implements Runnable {
         }
     }
 
-
-    public void run() {
-        play();
-    }
-
-    private void play() {
-        Board board = new Board();
-        try {
-            clearReader(serverBufferedReader);
-            clearReader(clientBufferedReader);
-
-            System.out.println("Waiting for opponent...");
-            protocol.sendQueue();
-            String data;
-            while (true) {
-                data = serverBufferedReader.readLine();
-                if (data == null) {
-                    System.err.println("Lost connection to the server.");
-                    System.exit(1);  // or handle in some other appropriate way
-                }
-                if (data.startsWith("NEWGAME")) {
-                    break;
-                }
-                if (data.equals("QUEUE")) {
-                    protocol.sendQueue();
-                    System.out.println("Left the queue");
-                    return;
-                }
-            }
-
-            waiting = false;
-
-            Game game = setup(board, data);
-            playGame(board, game);
-
-        } catch (IOException e) {
-            System.out.println("Could not connect to server");
-            System.exit(1);
-        }
-    }
-
     private void playGame(Board board, Game game) {
         while (!game.isFinished()) {
             System.out.println(board);
@@ -119,7 +78,7 @@ public class ClientTUI implements Runnable {
         }
     }
 
-    private Game setup(Board board, String data) {
+    private Game gameInit(Board board, String data) {
         String[] split = data.split("~");
         Player player1;
         Player player2;
@@ -149,6 +108,43 @@ public class ClientTUI implements Runnable {
     private void clearReader(BufferedReader reader) throws IOException {
         while (reader.ready()) {
             reader.readLine();
+        }
+    }
+
+    @Override
+    public void run() {
+        Board board = new Board();
+        try {
+            clearReader(serverBufferedReader);
+            clearReader(clientBufferedReader);
+
+            System.out.println("Waiting for opponent...");
+            protocol.sendQueue();
+            String data;
+            while (true) {
+                data = serverBufferedReader.readLine();
+                if (data == null) {
+                    System.err.println("Lost connection to the server.");
+                    System.exit(1);  // or handle in some other appropriate way
+                }
+                if (data.startsWith("NEWGAME")) {
+                    break;
+                }
+                if (data.equals("QUEUE")) {
+                    protocol.sendQueue();
+                    System.out.println("Left the queue");
+                    return;
+                }
+            }
+
+            waiting = false;
+
+            Game game = gameInit(board, data);
+            playGame(board, game);
+
+        } catch (IOException e) {
+            System.out.println("Could not connect to server");
+            System.exit(1);
         }
     }
 }
