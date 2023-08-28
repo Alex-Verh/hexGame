@@ -20,7 +20,7 @@ public class ServerTUI {
                 Scanner scanner = new Scanner(System.in);
                 System.out.println("Enter reference port number:");
                 port = scanner.nextInt();
-                if (port < 0 || port > 65535) {
+                if (port < 0 || port > 65535 ) {
                     System.out.println("Your indicated port number is not correct.");
                 } else {
                     break;
@@ -31,14 +31,5 @@ public class ServerTUI {
         }
         Server server = new Server(port);
         server.start();
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("`STOP` - to stop the server");
-            String command = scanner.nextLine();
-            if (command.equalsIgnoreCase("STOP")) {
-                server.stop();
-                break;
-            }
-        }
     }
 }

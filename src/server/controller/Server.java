@@ -104,11 +104,20 @@ public class Server implements Runnable{
     //@ensures queuedPlayers.size() - 1 == \old(queuedPlayers.size());
     public void addToQueue(ClientHandler clientHandler) throws IOException {
         synchronized (queuedPlayers) {
+            ///DEBUG             ///
+            System.out.println("ADDING TO QUEUE");
+            ///DEBUG            ///
             queuedPlayers.add(clientHandler);
 
             if (queuedPlayers.size() == 2) {
+
+                ///DEBUG             ///
+                System.out.println("STARTING A GAME");
+                ///DEBUG            ///
+
                 GameServer gameServer =
                         new GameServer(queuedPlayers.get(0), queuedPlayers.get(1), this);
+
                 queuedPlayers.remove(0);
                 queuedPlayers.remove(0);
                 addGameServer(gameServer);
@@ -116,6 +125,34 @@ public class Server implements Runnable{
             }
         }
     }
+
+    /**
+     * Switches in or out of queue.
+     * @param clientHandler the client to switch
+     */
+    //@requires clientHandler != null;
+    /*@ensures queuedPlayers.size() + 1 == \old(queuedPlayers.size()) ||
+            queuedPlayers.size() -1 == \old(queuedPlayers.size());  */
+    public void switchQueue(ClientHandler clientHandler) throws IOException {
+        if (queuedPlayers.contains(clientHandler)) {
+            removeFromQueue(clientHandler);
+        } else {
+            addToQueue(clientHandler);
+        }
+    }
+
+    /**
+     * Adds client to the queue.
+     * @param clientHandler the client to add
+     */
+    //@requires clientHandler != null;
+    //@ensures queuedPlayers.size() - 1 == \old(queuedPlayers.size());
+    public void removeFromQueue(ClientHandler clientHandler) throws IOException {
+        synchronized (queuedPlayers) {
+            queuedPlayers.remove(clientHandler);
+        }
+    }
+
 
     public synchronized void broadcastChatMessage(String message, String senderName) {
         // Loop through each client and send the chat message.
@@ -213,11 +250,6 @@ public class Server implements Runnable{
             }
             return rank;
         }
-    }
-
-    public static void main(String[] args) {
-        Server server = new Server(8080);
-        server.start();
     }
 
     /**

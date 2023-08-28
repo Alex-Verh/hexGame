@@ -11,7 +11,7 @@ public class Board {
     private static final String ANSI_GREEN = "\u001B[38;5;34m";
     private static final String ANSI_RED = "\u001B[38;5;88m";
 
-    private static Color[][] board;
+    private Color[][] board;
     //@private invariant board != null;
 
     //@ensures board.length == SIZE;
@@ -94,12 +94,10 @@ public class Board {
      * @param col Column of the cell
      * @return Color of the cell
      **/
-    //@requires 1 <= row && row <= SIZE;
-    //@requires 1 <= col && col <= SIZE;
-    //@ensures \result == board[row-1][col-1];
+    //@requires 0 <= row && row < SIZE;
+    //@requires 0 <= col && col < SIZE;
+    //@ensures \result == board[row][col];
     public Color getFieldColor(int row, int col) {
-        row--;
-        col--;
 
         if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
             throw new IllegalArgumentException("Coordinates out of bounds");
@@ -113,12 +111,10 @@ public class Board {
      * @param col Column of the cell
      * @param color Color to set the cell to
      **/
-    //@requires 1 <= row && row <= SIZE;
-    //@requires 1 <= col && col <= SIZE;
-    //@ensures board[row-1][col-1] == color;
+    //@requires 0 <= row && row < SIZE;
+    //@requires 0 <= col && col < SIZE;
+    //@ensures board[row][col] == color;
     public void setField(int row, int col, Color color) {
-        row--;
-        col--;
 
         if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
             throw new IllegalArgumentException("Coordinates out of bounds");
@@ -132,9 +128,9 @@ public class Board {
      * @param col Column of the cell
      * @return true if cell is empty, false otherwise
      **/
-    //@requires 1 <= row && row <= SIZE;
-    //@requires 1 <= col && col <= SIZE;
-    //@ensures \result == (board[row-1][col-1] == Color.EMPTY);
+    //@requires 0 <= row && row < SIZE;
+    //@requires 0 <= col && col < SIZE;
+    //@ensures \result == (board[row][col] == Color.EMPTY);
     public boolean isFieldEmpty(int row, int col) {
         return getFieldColor(row, col) == Color.EMPTY;
     }
@@ -144,6 +140,7 @@ public class Board {
      * @return true if the board is full, false otherwise
      **/
     //@ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] != Color.EMPTY));
+    //@pure;
     public boolean isBoardFull() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -160,6 +157,7 @@ public class Board {
      * @return true if the board is empty, false otherwise
      **/
     //@ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
+    //@pure;
     public boolean isBoardEmpty() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {

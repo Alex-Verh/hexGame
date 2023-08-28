@@ -132,32 +132,18 @@ public class ClientHandler implements Runnable {
         if (cmd == null) throw new IOException("Invalid command.");
 
         String[] parts = cmd.split("~");
-
-        switch (parts[0]) {
-            case "QUEUE":
-                handleQueueCommand();
-                break;
-            case "MOVE":
-                handleMoveCommand(cmd);
-                break;
-            case "LIST":
-                handleListCommand();
-                break;
-            case "RANK":
-                handleRankCommand();
-                break;
-            case "CHAT":
-                handleChatCommand(cmd);
-                break;
-            case "WHISPER":
-                handleWhisperCommand(cmd, clientName);
-                break;
-            case "CHALLENGE":
-                handleChallengeCommand();
-                break;
-            default:
-                Protocol.error(socketOut, "Unknown command");
-                break;
+        //DEBUGG
+        System.out.println("FUll command : " + cmd + " first word: "+ parts[0]);
+        //DEBUGG
+        switch (parts[0].toUpperCase()) {
+            case "QUEUE" -> handleQueueCommand();
+            case "MOVE" -> handleMoveCommand(cmd);
+            case "LIST" -> handleListCommand();
+            case "RANK" -> handleRankCommand();
+            case "CHAT" -> handleChatCommand(cmd);
+            case "WHISPER" -> handleWhisperCommand(cmd, clientName);
+            case "CHALLENGE" -> handleChallengeCommand();
+            default -> Protocol.error(socketOut, "Unknown command");
         }
     }
 
@@ -165,12 +151,14 @@ public class ClientHandler implements Runnable {
         if (mainServer.isInGame(clientName)) {
             Protocol.error(socketOut, "You are already in a game");
         } else {
-            refreshPipedWriter();
-            mainServer.addToQueue(this);
+            refreshPipedWriterReader();
+            mainServer.switchQueue(this);
         }
     }
 
     private void handleMoveCommand(String cmd) throws IOException {
+        System.out.println("Sending response to client: " + cmd);
+
         pWriter.write(cmd + "\n");
         pWriter.flush();
     }
@@ -244,16 +232,22 @@ public class ClientHandler implements Runnable {
 
     private void greetClient() throws IOException {
         String greeting = socketIn.readLine();
-        if (greeting != null && greeting.startsWith("HELLO")) {
+        if (greeting.startsWith("HELLO")) {
+
             String[] features = greeting.split("~");
             setClientFeatures(features);
             sendWelcomeMessage();
         } else {
+
             terminateConnection();
         }
     }
 
+
     private void setClientFeatures(String[] features) {
+        /////DEBUG/////
+        System.out.println("Client joined: " + features[1]);
+        ////////////////
         for (int i = 1; i < features.length; i++) {
             switch (features[i]) {
                 case "CHAT":
@@ -294,7 +288,7 @@ public class ClientHandler implements Runnable {
         Protocol.loggedIn(socketOut);
     }
 
-    private void refreshPipedWriter() throws IOException {
+    private void refreshPipedWriterReader() throws IOException {
         pWriter.close();
         pReader.close();
         pWriter = new PipedWriter();

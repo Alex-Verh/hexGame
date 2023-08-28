@@ -40,10 +40,19 @@ public class AIPlayer extends AbstractPlayer {
         Move moveAI;
         try {
             moveAI = getMove(game);
+            //DEBUG
+            System.out.println("AI generated move: " + moveAI);
             protocol.sendMove(moveAI.hashCode());
-            //reads the move from the server
+
+            //DEBUG
+            System.out.println("Waiting for server's response...");
+
+            // Wait for server's response
             String data = reader.readLine();
-            //check if the game is over
+
+            //DEBUG
+            System.out.println("Server responded with: " + data);
+
             if (data.equals("GAMEOVER")) {
                 System.out.println("The game has been finished.");
                 return null;
@@ -53,9 +62,12 @@ public class AIPlayer extends AbstractPlayer {
             }
         } catch (IOException e) {
             System.out.println("Error reading or sending the move. Please try again.");
+            e.printStackTrace(); // This will print more details about the exception.
             return null;
         }
     }
+
+
 
     /**
      * Gets the move from AI.
@@ -66,13 +78,21 @@ public class AIPlayer extends AbstractPlayer {
     //@ensures \result.getColor() == this.getColor() && \old(game.getValidMoves()).contains(\result);
     //@pure;
     private Move getMove(Game game) {
-        Move winningMove = game.getWinningMove();
+        Move winningMove = null;
+        for (Move move : game.getValidMoves()) {
+            Game hypotheticalGame = game.deepCopy(); // Assuming you have a deepCopy() method in the Game class
+            hypotheticalGame.makeMove(move); // Assuming you have a makeMove() method in the Game class
+            if (hypotheticalGame.isFinished() && hypotheticalGame.getWinner() == this) {
+                winningMove = move;  // This move would make the AI player win
+            }
+        }
         if (winningMove != null) {
             return winningMove;
+        } else {
+            Random rand = new Random();
+            int randomIndex = rand.nextInt(game.getValidMoves().size());
+            return game.getValidMoves().get(randomIndex);
         }
-        Random rand = new Random();
-        int randomIndex = rand.nextInt(game.getValidMoves().size());
-        return game.getValidMoves().get(randomIndex);
     }
 
     /**

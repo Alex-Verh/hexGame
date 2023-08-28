@@ -52,6 +52,7 @@ public class Listener implements Runnable {
             }
         } catch (IOException e) {
             System.out.println("No server connection.");
+            System.exit(0);
         }
     }
 

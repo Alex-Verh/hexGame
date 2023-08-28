@@ -79,16 +79,14 @@ public class GameServer implements Runnable {
      */
     public void makeMove(Move move) {
         // Check if move is valid
-        if (move != null && getValidMoves().contains(move)) {
-            List<Integer> counts = countFields();
-            int redFields = counts.get(0);
-            int blueFields = counts.get(1);
+        if (move != null && isValidMove(move)) {
+
 
             // Check if the move is a special swap move
-            if (move.getRow() == -1 && move.getCol() == -1 && move.getColor() == Color.BLUE) {
+            if (move.getRow() == 9 && move.getCol() == 0 && move.getColor() == Color.BLUE) {
                 // Get the position of the RED piece on the board (assuming there's only one, since it's the second move)
-                for (int i = 1; i <= Board.SIZE; i++) {
-                    for (int j = 1; j <= Board.SIZE; j++) {
+                for (int i = 0; i < Board.SIZE; i++) {
+                    for (int j = 0; j < Board.SIZE; j++) {
                         if (board.getFieldColor(i, j) == Color.RED) {
                             board.swapField(i, j);
                             return;
@@ -97,6 +95,9 @@ public class GameServer implements Runnable {
                 }
                 System.out.println("No RED piece to be swapped!");
             }
+            //DEBUG//
+            System.out.println("Move to be made: " + move + " by : " + move.getColor());
+            //DEBUG//
 
             // Place the player's color on the board
             board.setField(move.getRow(), move.getCol(), move.getColor());
@@ -105,13 +106,19 @@ public class GameServer implements Runnable {
         }
     }
 
+
     /**
      * Checks if a move is valid
      * @param move that is checked
      * @return true || false
      */
     public boolean isValidMove(Move move) {
-        return getValidMoves().contains(move);
+        for (Move validMove : getValidMoves()) {
+            if (validMove.hashCode() == move.hashCode()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -128,11 +135,14 @@ public class GameServer implements Runnable {
             // Add empty fields to valid moves
             addValidMoves(validMoves);
             // Add a swap possibility if it is a second move
-            validMoves.add(new Move(-1, -1,  Color.EMPTY));  // Special Move for swap
+            validMoves.add(new Move(9, 0,  Color.EMPTY));  // Special Move for swap
         } else {
             // Add empty fields to valid moves
             addValidMoves(validMoves);
         }
+        //DEBUG
+        System.out.println(validMoves);
+        //////
         return validMoves;
     }
 
@@ -144,8 +154,8 @@ public class GameServer implements Runnable {
         validMoves.clear();
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
-                if (board.isFieldEmpty(row + 1, col + 1)) {  // adjusting to 1-indexed
-                    validMoves.add(new Move(row + 1, col + 1, Color.EMPTY));
+                if (board.isFieldEmpty(row, col)) {  // adjusting to 1-indexed
+                    validMoves.add(new Move(row, col, Color.EMPTY));
                 }
             }
         }
@@ -161,9 +171,9 @@ public class GameServer implements Runnable {
         int blueFieldsCounter = 0;
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
-                if (board.getFieldColor(row + 1, col + 1) == Color.RED) { // Adding 1 to row and col because getFieldColor expects 1-based indices.
+                if (board.getFieldColor(row, col) == Color.RED) { // Adding 1 to row and col because getFieldColor expects 1-based indices.
                     redFieldsCounter++;
-                } else if (board.getFieldColor(row + 1, col + 1) == Color.BLUE) {
+                } else if (board.getFieldColor(row, col) == Color.BLUE) {
                     blueFieldsCounter++;
                 }
             }
@@ -193,18 +203,18 @@ public class GameServer implements Runnable {
     //@ pure;
     public String getWinner() {
         // Check for a winning path for Player 1 (assume they connect top to bottom)
-        for (int col = 1; col <= Board.SIZE; col++) {
-            if (board.getFieldColor(1, col) == Color.RED) {
-                if (dfs(1, col, Color.RED, new boolean[Board.SIZE][Board.SIZE])) {
+        for (int col = 0; col < Board.SIZE; col++) {
+            if (board.getFieldColor(0, col) == Color.RED) {
+                if (dfs(0, col, Color.RED, new boolean[Board.SIZE][Board.SIZE])) {
                     return player1;
                 }
             }
         }
 
         // Check for a winning path for Player 2 (assume they connect left to right)
-        for (int row = 1; row <= Board.SIZE; row++) {
-            if (board.getFieldColor(row, 1) == Color.BLUE) {
-                if (dfs(row, 1, Color.BLUE, new boolean[Board.SIZE][Board.SIZE])) {
+        for (int row = 0; row < Board.SIZE; row++) {
+            if (board.getFieldColor(row, 0) == Color.BLUE) {
+                if (dfs(row, 0, Color.BLUE, new boolean[Board.SIZE][Board.SIZE])) {
                     return player2;
                 }
             }
@@ -229,19 +239,19 @@ public class GameServer implements Runnable {
     //@ ensures \result == true || \result == false;
     //@ pure;
     private boolean dfs(int row, int col, Color color, boolean[][] visited) {
-        if (row < 1 || col < 1 || row > Board.SIZE || col > Board.SIZE) {
+        if (row < 0 || col < 0 || row >= Board.SIZE || col >= Board.SIZE) {
             return false;
         }
 
-        if (board.getFieldColor(row, col) != color || visited[row-1][col-1]) {
+        if (board.getFieldColor(row, col) != color || visited[row][col]) {
             return false;
         }
 
-        if ((color == Color.RED && row == Board.SIZE) || (color == Color.BLUE && col == Board.SIZE)) {
+        if ((color == Color.RED && row == Board.SIZE - 1) || (color == Color.BLUE && col == Board.SIZE - 1)) {
             return true;
         }
 
-        visited[row-1][col-1] = true;
+        visited[row][col] = true;
 
         int[][] directions = {
                 {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, 1}, {1, -1}
@@ -291,36 +301,31 @@ public class GameServer implements Runnable {
                 break;
             }
 
-            // if black has disconnected then send the end message
-            // GAMEOVER~DISCONNECT~black.getUsername()
+            // If red player disconnected
             if (disconnect(disconnected)) {
                 break;
             }
 
-            // white player's turn checks if it is valid else it will
-            // disconnect and automatically lose
             disconnected = gamePlay(reader2, Color.BLUE, writer2);
             // check if the game is over and send the appropriate message
             if (gameOverMessage()) {
                 break;
             }
 
-            // if white has disconnected then send the end message
-            // GAMEOVER~DISCONNECT~white.getUsername()
+            // If blue player disconnected
             if (disconnect(disconnected)) {
                 break;
             }
-
         }
         try {
             reader1.close();
         } catch (IOException e) {
-            System.out.println("Error closing black reader");
+            System.out.println("Error closing first player reader");
         }
         try {
             reader2.close();
         } catch (IOException e) {
-            System.out.println("Error closing white reader");
+            System.out.println("Error closing second player reader");
         }
     }
 
@@ -383,16 +388,17 @@ public class GameServer implements Runnable {
                         int row = index / Board.SIZE;
                         int col = index % Board.SIZE;
                         Move move = new Move(row, col, color);
+                        //DEBUG
+                        System.out.println("THIS MOVE IS TRIED TO BE DONE ON THE BOARD" + move);
                         if (isValidMove(move)) {
                             makeMove(move);
                             Protocol.sendMove(writer1, index);
                             Protocol.sendMove(writer2, index);
-                            break;
                         } else {
                             Protocol.error(writer, "Invalid move");
                             disconnect = true;
-                            break;
                         }
+                        break;
                     }
                 } else {
                     throw new IOException();

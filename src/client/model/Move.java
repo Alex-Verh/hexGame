@@ -67,7 +67,7 @@ public class Move {
      */
     @Override
     public String toString() {
-        int index = row * Board.SIZE + col;
+        int index = hashCode();
         return String.format("Move {Index: %d, Row: %d, Col: %d, Mark: %s}", index, row, col, color);
     }
 
@@ -75,11 +75,11 @@ public class Move {
      * Generates a unique integer value for the move, based on its row and column.
      * @return identifier
      */
-    //@ensures \result == (getRow() - 1) * Board.SIZE + (getCol() - 1);
+    //@ensures \result == (getRow()) * Board.SIZE + (getCol());
     //@pure;
     @Override
     public int hashCode() {
-        return (row - 1) * Board.SIZE + (col - 1);
+        return (row) * Board.SIZE+ (col);
     }
 
     /**

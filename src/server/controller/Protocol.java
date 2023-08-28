@@ -33,7 +33,7 @@ public class Protocol {
      */
     //@ requires writer != null;
     public static void hello(BufferedWriter writer) throws IOException {
-        sendMessage(writer, "HELLO~Alex:)~CHAT~RANK");
+        sendMessage(writer, "HELLO~AlexServer~CHAT~RANK");
     }
 
     /**

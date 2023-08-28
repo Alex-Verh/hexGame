@@ -29,7 +29,7 @@ public class Protocol {
     //@pure;
     public boolean sendHello() {
         try {
-            writer.write("HELLO~" + "Alex:)" + "~RANK~CHAT" + "\n");
+            writer.write("HELLO~" + "AlexClient" + "~RANK~CHAT" + "\n");
             writer.flush();
             return true;
         } catch (IOException e) {

@@ -48,7 +48,7 @@ public class RealPlayer extends AbstractPlayer {
             playerMove = getMove(game);
             protocol.sendMove(playerMove.hashCode());
             //reads the move from the server
-            String data = reader1.readLine();
+            String data = reader2.readLine();
             //check if the game is over
             if (data.equals("GAMEOVER")) {
                 System.out.println("The game has been finished.");
@@ -71,7 +71,7 @@ public class RealPlayer extends AbstractPlayer {
      * @throws IOException if you can't read from the reader
      */
     //@requires game != null && game.getBoard() != null && !game.isFinished();
-    //@requires reader2 != null;
+    //@requires reader1 != null;
     //@ensures \result.getColor() == this.getColor() && \old(game.getValidMoves()).contains(\result);
     //@pure;
     private Move getMove(Game game) throws IOException {
@@ -79,24 +79,35 @@ public class RealPlayer extends AbstractPlayer {
             try {
                 System.out.println("Please enter the index of the field or 'suggest' for a suggestion.");
 
-                String command = reader2.readLine();
 
-                if ("suggest".equalsIgnoreCase(command)) {
-                    Move suggestedMove = suggestMove(game);
-                    int suggestedIndex = suggestedMove.getRow() * Board.SIZE + suggestedMove.getCol();
-                    System.out.println("Suggested move: " + suggestedIndex);
-                    continue;
+                synchronized(reader1) {
+                    Move swapMove = new Move(9, 0 , getColor());
+                    if (game.isValidMove(swapMove)) {
+                        System.out.println("SWAP move is possible! Write `swap` to use it.");
+                    }
+
+                    String command = reader1.readLine();
+
+                    if ("suggest".equalsIgnoreCase(command)) {
+                        Move suggestedMove = suggestMove(game);
+                        int suggestedIndex = suggestedMove.hashCode();
+                        System.out.println("Suggested move: " + suggestedIndex);
+                        game.getBoard().displayBoard();
+                    } else {
+                        if ("swap".equalsIgnoreCase(command)) {
+                            return swapMove;
+                        }
+                        int index = Integer.parseInt(command);
+                        Move move = new Move(index / Board.SIZE, index % Board.SIZE, getColor());
+
+                        if (!game.isValidMove(move)) {
+                            System.out.println("Please enter a valid index");
+                        } else {
+                            return move;
+                        }
+                    }
+
                 }
-
-                int index = Integer.parseInt(command);
-                Move move = new Move(index / Board.SIZE, index % Board.SIZE, getColor());
-
-                if (!game.isValidMove(move)) {
-                    System.out.println("Please enter a valid index");
-                } else {
-                    return move;
-                }
-
             } catch (NumberFormatException e) {
                 System.out.println("Index should be a numeric value.");
             }
@@ -105,14 +116,25 @@ public class RealPlayer extends AbstractPlayer {
 
 
     private Move suggestMove(Game game) {
-        Move winningMove = game.getWinningMove();
+        Move winningMove = null;
+        for (Move move : game.getValidMoves()) {
+            Game hypotheticalGame = game.deepCopy(); // Assuming you have a deepCopy() method in the Game class
+            hypotheticalGame.makeMove(move); // Assuming you have a makeMove() method in the Game class
+            if (hypotheticalGame.isFinished() && hypotheticalGame.getWinner() == this) {
+                winningMove = move;  // This move would make the player win
+                break;  // No need to check further once we've found a winning move
+            }
+        }
+
         if (winningMove != null) {
             return winningMove;
+        } else {
+            Random rand = new Random();
+            int randomIndex = rand.nextInt(game.getValidMoves().size());
+            return game.getValidMoves().get(randomIndex);
         }
-        Random rand = new Random();
-        int randomIndex = rand.nextInt(game.getValidMoves().size());
-        return game.getValidMoves().get(randomIndex);
     }
+
 
 
     /**
