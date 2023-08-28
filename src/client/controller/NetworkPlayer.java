@@ -44,11 +44,15 @@ public class NetworkPlayer extends AbstractPlayer {
             // Read the move from the server
             String data = serverReader.readLine();
 
-            String[] split = data.split("~");
-            int index = Integer.parseInt(split[1]);
+            if (data.equals("GAMEOVER")) {
+                return null;
+            } else {
+                String[] split = data.split("~");
+                int index = Integer.parseInt(split[1]);
 
-            //return the move
-            return new Move(index / Board.SIZE, index % Board.SIZE, getColor());
+                //return the move
+                return new Move(index / Board.SIZE, index % Board.SIZE, getColor());
+            }
         } catch (IOException e) {
             System.out.println("Player has disconnected");
             return null;

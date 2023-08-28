@@ -77,6 +77,7 @@ public class Protocol {
     //@pure;
     public void sendMessage(String message) throws IOException {
         String finalMessage = escape(message);
+        System.out.println("You told everyone: " + finalMessage);
         writer.write("CHAT~" + finalMessage + "\n");
         writer.flush();
     }
@@ -121,6 +122,7 @@ public class Protocol {
     //@pure;
     public void sendWhisper(String username, String message) throws IOException {
         String finalMessage = escape(message);
+        System.out.println("You told " + username + " : " + finalMessage);
         writer.write("WHISPER~" + username + "~" + finalMessage + "\n");
         writer.flush();
     }

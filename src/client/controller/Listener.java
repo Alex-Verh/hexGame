@@ -74,6 +74,7 @@ public class Listener implements Runnable {
             case "WHISPER" -> System.out.println(formatMessage(split, "tells you"));
             case "CHAT" -> System.out.println(formatMessage(split, "said"));
             case "RANK" -> System.out.println(printRank(serverMessage));
+            case "CANNOTWHISPER" -> System.out.println("You can not message " + split[1]);
             case "ERROR" -> System.out.println("ERROR: " + split[1]);
             default -> System.out.println("UNKNOWN: " + serverMessage);
         }

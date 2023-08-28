@@ -1,6 +1,9 @@
 package server.controller;
 
 
+import server.PlayerChatLacking;
+import server.PlayerOfflineException;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -118,7 +121,7 @@ public class ClientHandler implements Runnable {
                 String command = socketIn.readLine();
                 interpretAndProcess(command);
             }
-        } catch (IOException e) {
+        } catch (IOException | PlayerChatLacking | PlayerOfflineException e) {
             System.out.println("Client disconnected.");
             terminateConnection();
         }
@@ -128,20 +131,24 @@ public class ClientHandler implements Runnable {
      * Interprets and processes a given command.
      * @param cmd The command string to interpret.
      */
-    private void interpretAndProcess(String cmd) throws IOException {
+    private void interpretAndProcess(String cmd) throws IOException, PlayerChatLacking, PlayerOfflineException {
         if (cmd == null) throw new IOException("Invalid command.");
 
         String[] parts = cmd.split("~");
-        //DEBUGG
-        System.out.println("FUll command : " + cmd + " first word: "+ parts[0]);
-        //DEBUGG
+
         switch (parts[0].toUpperCase()) {
             case "QUEUE" -> handleQueueCommand();
             case "MOVE" -> handleMoveCommand(cmd);
             case "LIST" -> handleListCommand();
             case "RANK" -> handleRankCommand();
             case "CHAT" -> handleChatCommand(cmd);
-            case "WHISPER" -> handleWhisperCommand(cmd, clientName);
+            case "WHISPER" -> {
+                if (parts.length > 1) {
+                    handleWhisperCommand(cmd, parts[1]);
+                } else {
+                    System.out.println("No recipient name was indicated.");
+                }
+            }
             case "CHALLENGE" -> handleChallengeCommand();
             default -> Protocol.error(socketOut, "Unknown command");
         }
@@ -183,13 +190,28 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void handleWhisperCommand(String cmd, String username) throws IOException {
+    public void handleWhisperCommand(String cmd, String username) throws IOException, PlayerChatLacking, PlayerOfflineException {
         if (isChatEnabled) {
-
-            mainServer.sendPrivateMessage(cmd, username);
-
+            mainServer.whisper(cmd, username, socketOut);
         } else {
             Protocol.error(socketOut, "Whisper not supported by your client.");
+        }
+    }
+
+    /**
+     * Sends message to user.
+     * @param message message to send
+     * @param user username of the user
+     */
+    //@requires !message.isEmpty() && !user.isEmpty() && user.length() <= 20;
+    //@pure;
+    public void sendWhisper(String message, String user) {
+        try {
+            if (isChatEnabled()) {
+                Protocol.sendWhisper(socketOut, user, message);
+            }
+        } catch (IOException e) {
+            System.out.println("Could not send whisper message");
         }
     }
 

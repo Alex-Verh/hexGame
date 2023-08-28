@@ -95,9 +95,7 @@ public class GameServer implements Runnable {
                 }
                 System.out.println("No RED piece to be swapped!");
             }
-            //DEBUG//
-            System.out.println("Move to be made: " + move + " by : " + move.getColor());
-            //DEBUG//
+
 
             // Place the player's color on the board
             board.setField(move.getRow(), move.getCol(), move.getColor());
@@ -293,7 +291,6 @@ public class GameServer implements Runnable {
         newGame(writer1);
         newGame(writer2);
 
-        // blacks turn check if valid move and if not valid then disconnect and auto lose
         while (true) {
             disconnected = gamePlay(reader1, Color.RED, writer1);
 
@@ -307,7 +304,7 @@ public class GameServer implements Runnable {
             }
 
             disconnected = gamePlay(reader2, Color.BLUE, writer2);
-            // check if the game is over and send the appropriate message
+
             if (gameOverMessage()) {
                 break;
             }
@@ -317,6 +314,7 @@ public class GameServer implements Runnable {
                 break;
             }
         }
+
         try {
             reader1.close();
         } catch (IOException e) {
@@ -388,8 +386,7 @@ public class GameServer implements Runnable {
                         int row = index / Board.SIZE;
                         int col = index % Board.SIZE;
                         Move move = new Move(row, col, color);
-                        //DEBUG
-                        System.out.println("THIS MOVE IS TRIED TO BE DONE ON THE BOARD" + move);
+
                         if (isValidMove(move)) {
                             makeMove(move);
                             Protocol.sendMove(writer1, index);
@@ -459,24 +456,22 @@ public class GameServer implements Runnable {
     //@ensures \result == gameOver;
     //@pure;
     private boolean disconnect(boolean gameOver) {
-        // if it is black has disconnected then send the end message
-        // GAMEOVER~DISCONNECT~username
+        // if one player has disconnected then send the end message to both players
         if (gameOver) {
             server.removeGameServer(this);
             try {
                 Protocol.disconnect(writer1, player1);
-            } catch (IOException e1) {
-                try {
-                    Protocol.disconnect(writer2, player2);
-                } catch (IOException e2) {
-                    System.out.println("Error sending disconnect message");
-                }
+                Protocol.disconnect(writer2, player2);
+            } catch (IOException e) {
+                System.out.println("Error sending disconnect message");
             }
 
+            // Terminate the game session
             return true;
         }
         return false;
     }
+
 
     /**
      * Returns the players.

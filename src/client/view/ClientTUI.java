@@ -22,12 +22,6 @@ public class ClientTUI implements Runnable {
     private static boolean chat = false;
     //@private invariant chat == false || chat == true;
 
-    private static boolean noise = false;
-    //@private invariant noise == false || noise == true;
-
-    private static boolean challenge = false;
-    //@private invariant challenge == false || challenge == true;
-
     private static boolean rank = false;
     //@private invariant rank == false || rank == true;
 
@@ -85,11 +79,65 @@ public class ClientTUI implements Runnable {
             listnerthread.start();
 
 
-            ClientTUI gameTUI = new ClientTUI(clientReader, serverReader, protocol, playerName, playerType);
-            gameTUI.run();  // This will start the game
+            // Continuously read lines from System.in and send them to the server
+            String line;
+            printHelp();
+            while (true) {
+                line = clientInput.readLine();
+                if (line.equalsIgnoreCase("QUIT")) { //if quit is typed break
+                    System.exit(0);
+                } else if (line.equalsIgnoreCase("HELP")) {
+                    printHelp();
+                } else if (line.equalsIgnoreCase("LIST")) {
+                    protocol.sendList();
+                } else if (line.equalsIgnoreCase("QUEUE")) {
+                    ClientTUI gameTUI = new ClientTUI(clientReader, serverReader, protocol, playerName, playerType);
+                    gameTUI.run();  // This will start the game
+                } else if (line.equalsIgnoreCase("RANK")) {
+                    if (rank) {
+                        protocol.sendRank();
+                    } else {
+                        System.out.println("Rank is not supported by the server");
+                    }
+                } else if (line.toUpperCase().startsWith("WHISPER")) {
+                    if (chat) {
+                        String[] split = line.split(" ");
+                        if (split.length > 2) {
+                            String name = split[1];
+                            String message = line.substring(line.indexOf(name) + name.length() + 1);
+                            protocol.sendWhisper(name, message);
+                        } else {
+                            System.out.println("Indicate the recipient and the actual message to him");
+                        }
+                    } else {
+                        System.out.println("Chat is not supported by the server");
+                    }
+                } else {
+                    if (chat) {
+                        protocol.sendMessage(line);
+                    } else {
+                        System.out.println("Invalid command");
+                    }
+                }
+            }
         } catch (IOException e) {
             System.out.println("This server is not working.");
         }
+    }
+
+    /**
+     * Prints commands if asked.
+     */
+    //@pure;
+    private static void printHelp() {
+        System.out.println("\u001B[38;5;196m" + "Commands: \n" +
+                "\u001B[38;5;51m" + "help" + "\u001B[0m" + " - shows this help message \n" +
+                "\u001B[38;5;51m" + "quit" + "\u001B[0m" + " - quits the program\n" +
+                "\u001B[38;5;51m" + "rank" + "\u001B[0m" + " - shows the rank of the players\n" +
+                "\u001B[38;5;51m" + "list" + "\u001B[0m" + " - shows all users on the server\n" +
+                "\u001B[38;5;51m" + "queue" + "\u001B[0m" + " - join the queue\n" +
+                "\u001B[38;5;51m" + "whisper <name> <message>" + "\u001B[0m" + " - sends private message\n" +
+                "or directly type" + "\u001B[38;5;51m" + " a message "+ "\u001B[0m" + "to send it to everyone\n" + "\u001B[0m");
     }
 
     private static String getUsername(BufferedReader clientInput, Protocol protocol) throws IOException {
@@ -148,16 +196,16 @@ public class ClientTUI implements Runnable {
                 System.out.println("Game Over");
                 break;
             }
-            //DEBUGGG
-            System.out.println(move);
             game.makeMove(move);
         }
 
-        System.out.println(board);
+        board.displayBoard();
         if (game.getWinner() != null) {
             System.out.println(game.getWinner() + " won");
         } else {
-            System.out.println("Player has disconnected");
+            System.out.println("Opponent has disconnected.");
+            System.out.println("You have won by forfeit.");
+
         }
     }
 
@@ -255,17 +303,8 @@ public class ClientTUI implements Runnable {
             String data = reader.readLine();
             if (data.startsWith("HELLO")) {
                 List<String> list = List.of(data.split("~"));
-                /////DEBUG/////
-                System.out.println("EXTENSIONS OF THE SERVER : " + list);
-                ////////////////
                 if (list.contains("CHAT")) {
                     chat = true;
-                }
-                if (list.contains("NOISE")) {
-                    noise = true;
-                }
-                if (list.contains("CHALLENGE")) {
-                    challenge = true;
                 }
                 if (list.contains("RANK")) {
                     rank = true;

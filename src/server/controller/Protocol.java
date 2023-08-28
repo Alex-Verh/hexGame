@@ -136,6 +136,17 @@ public class Protocol {
     }
 
     /**
+     * Sends a cannot whisper message.
+     * @param writer BufferedWriter to send the message to.
+     * @throws IOException if there's an error writing the message.
+     */
+    //@ requires writer != null;
+    //@pure;
+    public static void sendCannotWhisper(BufferedWriter writer, String recipient) throws IOException {
+        sendMessage(writer, "CANNOTWHISPER~" + recipient);
+    }
+
+    /**
      * Sends a list message.
      * @param writer BufferedWriter to send the message to.
      * @throws IOException if there's an error writing the message.

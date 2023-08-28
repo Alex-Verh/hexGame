@@ -84,7 +84,7 @@ public class Board {
                 System.out.println(ANSI_BLUE + "║" + ANSI_RESET); // Right border
             }
         }
-        System.out.println(ANSI_RED + "====================================================================" + ANSI_RED);
+        System.out.println(ANSI_RED + "====================================================================" + ANSI_RESET);
     }
 
 

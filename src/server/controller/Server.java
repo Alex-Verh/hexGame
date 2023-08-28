@@ -1,6 +1,8 @@
 package server.controller;
 
 import client.model.Player;
+import server.PlayerChatLacking;
+import server.PlayerOfflineException;
 import server.model.GameServer;
 
 import java.io.BufferedWriter;
@@ -33,9 +35,6 @@ public class Server implements Runnable{
     private final List<ClientHandler> queuedPlayers;
     //@ private invariant queuedPlayers != null;
 
-    private final Queue<Player> gameQueue;
-    //@ private invariant gameQueue != null;
-
     private final Map<String, Integer> rankings;
     //@private invariant rankings != null;
     /**
@@ -49,7 +48,6 @@ public class Server implements Runnable{
         this.players = new HashMap<>();
         this.queuedPlayers = new ArrayList<>();
         this.games = new ArrayList<>();
-        this.gameQueue = new LinkedList<>();
         this.rankings = new HashMap<>();
     }
 
@@ -83,9 +81,26 @@ public class Server implements Runnable{
         }
     }
 
-    //@ requires client != null;
+    //@requires client != null;
+    /*@ensures !queuedPlayers.contains(client) &&
+            !clients.contains(client.getClientSocket()) && !players.containsKey(client); */
+    //@ensures client.getClientSocket().isClosed();
     public synchronized void removeClient(ClientHandler client) {
         clients.remove(client);
+        synchronized (clients) {
+            clients.remove(client.getClientSocket());
+        }
+        synchronized (players) {
+            players.remove(client);
+        }
+        synchronized (queuedPlayers) {
+            queuedPlayers.remove(client);
+        }
+        try {
+            client.getClientSocket().close();
+        } catch (IOException e) {
+            System.out.println("Client has disconnected");
+        }
     }
 
     public synchronized List<String> getAllUsers() {
@@ -102,18 +117,12 @@ public class Server implements Runnable{
      */
     //@requires clientHandler != null;
     //@ensures queuedPlayers.size() - 1 == \old(queuedPlayers.size());
-    public void addToQueue(ClientHandler clientHandler) throws IOException {
+    public void addToQueue(ClientHandler clientHandler) {
         synchronized (queuedPlayers) {
-            ///DEBUG             ///
-            System.out.println("ADDING TO QUEUE");
-            ///DEBUG            ///
+
             queuedPlayers.add(clientHandler);
 
             if (queuedPlayers.size() == 2) {
-
-                ///DEBUG             ///
-                System.out.println("STARTING A GAME");
-                ///DEBUG            ///
 
                 GameServer gameServer =
                         new GameServer(queuedPlayers.get(0), queuedPlayers.get(1), this);
@@ -170,26 +179,37 @@ public class Server implements Runnable{
     }
 
     /**
-     * Sends a private message from one user to another.
-     * @param message the message to send
+     * Sends a whisper to a specific client.
+     * @param data the message to send
      * @param username the username of the sender
+     * @throws PlayerOfflineException if the user is not online
+     * @throws PlayerChatLacking if the user is not able to be whispered to
      */
     //@requires username.length() <= 20 && !username.isEmpty();
-    //@requires !message.isEmpty();
+    //@requires !data.isEmpty();
     //@pure;
-    public void sendPrivateMessage(String message, String username) throws IOException {
-        String[] split = message.split("~");
+    public void whisper(String data, String username, BufferedWriter socketOut)
+            throws PlayerOfflineException, PlayerChatLacking, IOException {
+        String[] split = data.split("~");
         synchronized (players) {
             // checks if the user is online
-            if (players.containsValue(split[0])) {
+            // else throws OfflineException
+            if (players.containsValue(split[1])) {
                 for (ClientHandler client : players.keySet()) {
-                    if (client.getName().equals(split[1])) {
+                    if (client.getClientName().equals(split[1])) {
                         // checks if the user can be whispered to
+                        // else throws WhisperException
                         if (client.isChatEnabled()) {
-                            client.handleWhisperCommand(message, username); // sends the whisper
+                            client.sendWhisper(data, username); // sends the whisper
+                        } else {
+                            Protocol.sendCannotWhisper(socketOut, username);
+                            throw new PlayerChatLacking(username);
                         }
                     }
                 }
+            } else {
+                Protocol.sendCannotWhisper(socketOut, username);
+                throw new PlayerOfflineException(username);
             }
         }
     }
