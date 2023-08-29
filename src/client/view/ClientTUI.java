@@ -1,12 +1,12 @@
 package client.view;
 
+import client.Sound;
 import client.controller.*;
 import client.model.*;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
-import java.util.Objects;
 
 public class ClientTUI implements Runnable {
 
@@ -68,6 +68,7 @@ public class ClientTUI implements Runnable {
         try {
             System.out.println("Joining " + serverIpAddress + " on port " + portNumber);
             socket = new Socket(serverIpAddress, portNumber);
+            Sound.backSound();
             Protocol protocol = setup(); // Assuming a default constructor for simplicity.
             PipedReader serverReader = new PipedReader();
             PipedWriter serverWriter = new PipedWriter(serverReader);
@@ -201,12 +202,18 @@ public class ClientTUI implements Runnable {
 
         board.displayBoard();
         if (game.getWinner() != null) {
-            System.out.println(game.getWinner() + " won");
+            System.out.println(((AbstractPlayer) game.getWinner()).getName() + " won");
+            if (game.getWinner().toString().equals(playerName)) {
+                Sound.winSound();
+            } else {
+                Sound.lostSound();
+            }
         } else {
             System.out.println("Opponent has disconnected.");
             System.out.println("You have won by forfeit.");
-
+            Sound.winSound();
         }
+        printHelp();
     }
 
     private Game gameInit(Board board, String data) {
@@ -251,6 +258,7 @@ public class ClientTUI implements Runnable {
             clearReader(clientBufferedReader);
 
             System.out.println("Waiting for opponent...");
+            Sound.shot();
             protocol.sendQueue();
 
             String data;
@@ -262,11 +270,12 @@ public class ClientTUI implements Runnable {
                     System.exit(1);  // or handle in some other appropriate way
                 }
                 if (data.startsWith("NEWGAME~")) {
+                    Sound.startSound();
                     break;
                 }
                 if (data.equals("QUEUE")) {
-
                     protocol.sendQueue();
+                    Sound.shot();
                     System.out.println("Left the queue");
                     return;
                 }
