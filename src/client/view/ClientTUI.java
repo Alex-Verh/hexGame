@@ -1,6 +1,6 @@
 package client.view;
 
-import client.Sound;
+import client.sound.Sound;
 import client.controller.*;
 import client.model.*;
 

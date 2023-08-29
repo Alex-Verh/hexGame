@@ -1,12 +1,18 @@
 package client.controller;
 
-import client.model.*;
-
+import client.model.AbstractPlayer;
+import client.model.Board;
+import client.model.Color;
+import client.model.Game;
+import client.model.Move;
+import client.model.Player;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
 
+/**
+ * AI player class.
+ */
 public class AIPlayer extends AbstractPlayer {
     private final BufferedReader reader;
     //@private invariant reader != null;

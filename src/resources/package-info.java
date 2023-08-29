@@ -1,0 +1,4 @@
+/**
+ * Sound resources.
+ */
+package resources;

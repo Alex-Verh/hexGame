@@ -1,4 +1,4 @@
-package client;
+package client.sound;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
