@@ -15,7 +15,6 @@ public class ClientTUI implements Runnable {
     private final Protocol protocol;
     private final String playerName;
     private final String playerType; // For AI or Human type.
-    private boolean waiting;
 
     private static Socket socket;
 
@@ -31,7 +30,6 @@ public class ClientTUI implements Runnable {
         this.protocol = protocol;
         this.playerName = playerName;
         this.playerType = playerType;
-        this.waiting = true;
     }
 
 
@@ -141,7 +139,7 @@ public class ClientTUI implements Runnable {
                 "or directly type" + "\u001B[38;5;51m" + " a message "+ "\u001B[0m" + "to send it to everyone\n" + "\u001B[0m");
     }
 
-    private static String getUsername(BufferedReader clientInput, Protocol protocol) throws IOException {
+    public static String getUsername(BufferedReader clientInput, Protocol protocol) throws IOException {
         String playerName;
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         System.out.print("Enter your username:");
@@ -168,7 +166,7 @@ public class ClientTUI implements Runnable {
         return playerName;
     }
 
-    private static String getPlayerType(BufferedReader clientInput) {
+    public static String getPlayerType(BufferedReader clientInput) {
 
         String playerType;
 
@@ -216,7 +214,7 @@ public class ClientTUI implements Runnable {
         printHelp();
     }
 
-    private Game gameInit(Board board, String data) {
+    public Game gameInit(Board board, String data) {
         String[] split = data.split("~");
         Player player1;
         Player player2;
@@ -257,12 +255,25 @@ public class ClientTUI implements Runnable {
             clearReader(serverBufferedReader);
             clearReader(clientBufferedReader);
 
-            System.out.println("Waiting for opponent...");
+            System.out.println("Waiting for opponent... Type 'queue' again to exit.");
             Sound.shot();
             protocol.sendQueue();
 
             String data;
             while (true) {
+                // Check if there's any data from the server
+                while (!serverBufferedReader.ready()) {
+                    if (clientBufferedReader.ready()) {
+                        String userInput = clientBufferedReader.readLine();
+                        if ("queue".equalsIgnoreCase(userInput)) {
+                            System.out.println("You quited the queue.");
+
+                            Sound.shot();
+                            protocol.sendQueue();
+                            return;
+                        }
+                    }
+                }
 
                 data = serverBufferedReader.readLine();
                 if (data == null) {
@@ -280,8 +291,6 @@ public class ClientTUI implements Runnable {
                     return;
                 }
             }
-
-            waiting = false;
 
             Game game = gameInit(board, data);
             playGame(board, game);

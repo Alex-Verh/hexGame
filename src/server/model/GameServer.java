@@ -3,7 +3,6 @@ package server.model;
 import client.model.Board;
 import client.model.Color;
 import client.model.Move;
-import client.model.Player;
 import server.controller.ClientHandler;
 import server.controller.Protocol;
 import server.controller.Server;
@@ -186,10 +185,8 @@ public class GameServer implements Runnable {
     //@ensures getBoard().isBoardFull() || getValidMoves().isEmpty();
     //@pure;
     public boolean isFinished() {
-        return board.isBoardFull() || getValidMoves().isEmpty() || (getWinner() == player1 || getWinner() == player2);
+        return board.isBoardFull() || getValidMoves().isEmpty() || (Objects.equals(getWinner(), player1) || Objects.equals(getWinner(), player2));
     }
-
-
 
     /**
      * Gets the winner of the game, decided by a connection of hexagons between vertical and horizontal lines.
@@ -461,9 +458,12 @@ public class GameServer implements Runnable {
             server.removeGameServer(this);
             try {
                 Protocol.disconnect(writer1, player1);
-                Protocol.disconnect(writer2, player2);
-            } catch (IOException e) {
-                System.out.println("Error sending disconnect message");
+            } catch (IOException e1) {
+                try {
+                    Protocol.disconnect(writer2, player2);
+                } catch (IOException e2) {
+                    System.out.println("Error sending disconnect message");
+                }
             }
 
             // Terminate the game session

@@ -55,18 +55,22 @@ public class Server implements Runnable{
      * Starts the server to listen for client connections.
      */
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started on port: " + port);
+        Thread serverThread = new Thread(() -> {
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
+                System.out.println("Server started on port: " + port);
 
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                ClientHandler client = new ClientHandler(clientSocket, this);
-                Thread clientThread = new Thread(client);
-                clientThread.start();
+                while (!Thread.currentThread().isInterrupted()) {
+                    Socket clientSocket = serverSocket.accept();
+                    ClientHandler client = new ClientHandler(clientSocket, this);
+                    Thread clientThread = new Thread(client);
+                    clientThread.start();
+                }
+            } catch (IOException e) {
+                System.out.println("Server error: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println("Server error: " + e.getMessage());
-        }
+        });
+
+        serverThread.start();
     }
 
     /**
@@ -86,7 +90,6 @@ public class Server implements Runnable{
             !clients.contains(client.getClientSocket()) && !players.containsKey(client); */
     //@ensures client.getClientSocket().isClosed();
     public synchronized void removeClient(ClientHandler client) {
-        clients.remove(client);
         synchronized (clients) {
             clients.remove(client.getClientSocket());
         }
@@ -145,6 +148,8 @@ public class Server implements Runnable{
     public void switchQueue(ClientHandler clientHandler) throws IOException {
         if (queuedPlayers.contains(clientHandler)) {
             removeFromQueue(clientHandler);
+            //DEBUG
+            System.out.println("Remove client from queue");
         } else {
             addToQueue(clientHandler);
         }
@@ -176,6 +181,10 @@ public class Server implements Runnable{
                 }
             }
         }
+    }
+
+    public List<ClientHandler> getQueuedPlayers() {
+        return queuedPlayers;
     }
 
     /**
@@ -287,32 +296,6 @@ public class Server implements Runnable{
             } catch (IOException e) {
                 System.out.println("Server could not be stopped");
             }
-        }
-    }
-
-
-    /**
-     * Disconnects a client.
-     * @param clientHandler the client to disconnect
-     */
-    //@requires clientHandler != null;
-    /*@ensures !queuedPlayers.contains(clientHandler) &&
-            !clients.contains(clientHandler.getClientSocket()) && !players.containsKey(clientHandler); */
-    //@ensures clientHandler.getClientSocket().isClosed();
-    public void stop(ClientHandler clientHandler) {
-        synchronized (queuedPlayers) {
-            queuedPlayers.remove(clientHandler);
-        }
-        synchronized (clients) {
-            clients.remove(clientHandler.getClientSocket());
-        }
-        synchronized (players) {
-            players.remove(clientHandler);
-        }
-        try {
-            clientHandler.getClientSocket().close();
-        } catch (IOException e) {
-            System.out.println("Client has disconnected");
         }
     }
 

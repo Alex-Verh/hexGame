@@ -21,10 +21,16 @@ public class Move {
      * @param col The column where the move was made.
      * @param color The color of the player making the move.
      **/
-    //@requires row >= 0 && row < Board.SIZE;
+    //@requires (row >= 0 && row < Board.SIZE) || row == 9;
     //@requires col >= 0 && col < Board.SIZE;
     //@requires color != null;
     public Move(int row, int col, Color color) {
+        if(row < 0 || (row >= Board.SIZE && row != 9) || col < 0 || col >= Board.SIZE) {
+            throw new IllegalArgumentException("Row or column out of range");
+        }
+        if(color == null) {
+            throw new IllegalArgumentException("Color cannot be null");
+        }
         this.row = row;
         this.col = col;
         this.color = color;

@@ -137,21 +137,36 @@ public class ClientHandler implements Runnable {
         String[] parts = cmd.split("~");
 
         switch (parts[0].toUpperCase()) {
-            case "QUEUE" -> handleQueueCommand();
-            case "MOVE" -> handleMoveCommand(cmd);
-            case "LIST" -> handleListCommand();
-            case "RANK" -> handleRankCommand();
-            case "CHAT" -> handleChatCommand(cmd);
-            case "WHISPER" -> {
+            case "QUEUE":
+                handleQueueCommand();
+                break;
+            case "MOVE":
+                handleMoveCommand(cmd);
+                break;
+            case "LIST":
+                handleListCommand();
+                break;
+            case "RANK":
+                handleRankCommand();
+                break;
+            case "CHAT":
+                handleChatCommand(cmd);
+                break;
+            case "WHISPER":
                 if (parts.length > 1) {
                     handleWhisperCommand(cmd, parts[1]);
                 } else {
                     System.out.println("No recipient name was indicated.");
                 }
-            }
-            case "CHALLENGE" -> handleChallengeCommand();
-            default -> Protocol.error(socketOut, "Unknown command");
+                break;
+            case "CHALLENGE":
+                handleChallengeCommand();
+                break;
+            default:
+                Protocol.error(socketOut, "Unknown command");
+                break;
         }
+
     }
 
     private void handleQueueCommand() throws IOException {
@@ -184,7 +199,11 @@ public class ClientHandler implements Runnable {
 
     private void handleChatCommand(String cmd) throws IOException {
         if (isChatEnabled) {
-            mainServer.broadcastChatMessage(cmd, clientName);
+            String[] commands = cmd.split("~");
+            if (commands.length < 2) {
+                return;
+            }
+            mainServer.broadcastChatMessage(commands[1], clientName);
         } else {
             Protocol.error(socketOut, "Chat not supported by your client.");
         }
@@ -208,6 +227,7 @@ public class ClientHandler implements Runnable {
     public void sendWhisper(String message, String user) {
         try {
             if (isChatEnabled()) {
+                message = message.split("~")[2];
                 Protocol.sendWhisper(socketOut, user, message);
             }
         } catch (IOException e) {
@@ -267,9 +287,6 @@ public class ClientHandler implements Runnable {
 
 
     private void setClientFeatures(String[] features) {
-        /////DEBUG/////
-        System.out.println("Client joined: " + features[1]);
-        ////////////////
         for (int i = 1; i < features.length; i++) {
             switch (features[i]) {
                 case "CHAT":
@@ -300,6 +317,10 @@ public class ClientHandler implements Runnable {
     //@pure;
     public String getName() {
         return clientName;
+    }
+
+    public boolean getChat() {
+        return isChatEnabled;
     }
 
     private void sendWelcomeMessage() throws IOException {

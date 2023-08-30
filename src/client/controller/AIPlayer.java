@@ -46,18 +46,11 @@ public class AIPlayer extends AbstractPlayer {
         Move moveAI;
         try {
             moveAI = getMove(game);
-            //DEBUG
-            System.out.println("AI generated move: " + moveAI);
-            protocol.sendMove(moveAI.hashCode());
 
-            //DEBUG
-            System.out.println("Waiting for server's response...");
+            protocol.sendMove(moveAI.hashCode());
 
             // Wait for server's response
             String data = reader.readLine();
-
-            //DEBUG
-            System.out.println("Server responded with: " + data);
 
             if (data.equals("GAMEOVER")) {
                 System.out.println("The game has been finished.");
@@ -109,7 +102,7 @@ public class AIPlayer extends AbstractPlayer {
     //@ensures \result != null;
     @Override
     public Player deepCopy() {
-        Player player = new AIPlayer(getColor(), getBoard(), toString(), reader);
+        Player player = new AIPlayer(getColor(), getBoard(), getName(), reader);
         player.setOpponent(getOpponent());
         return player;
     }

@@ -68,16 +68,38 @@ public class Listener implements Runnable {
         String command = split[0].toUpperCase();
 
         switch (command) {
-            case "MOVE", "NEWGAME" -> writeToPipe(serverMessage);
-            case "GAMEOVER" -> writeToPipe("GAMEOVER");
-            case "LIST" -> System.out.println(printList(serverMessage));
-            case "WHISPER" -> System.out.println(formatMessage(split, "tells you"));
-            case "CHAT" -> System.out.println(formatMessage(split, "said"));
-            case "RANK" -> System.out.println(printRank(serverMessage));
-            case "CANNOTWHISPER" -> System.out.println("You can not message " + split[1]);
-            case "ERROR" -> System.out.println("ERROR: " + split[1]);
-            default -> System.out.println("UNKNOWN: " + serverMessage);
+            case "MOVE":
+                writeToPipe(serverMessage);
+                break;
+            case "NEWGAME":
+                writeToPipe(serverMessage);
+                break;
+            case "GAMEOVER":
+                writeToPipe("GAMEOVER");
+                break;
+            case "LIST":
+                System.out.println(printList(serverMessage));
+                break;
+            case "WHISPER":
+                System.out.println(formatMessage(split, "tells you"));
+                break;
+            case "CHAT":
+                System.out.println(formatMessage(split, "said"));
+                break;
+            case "RANK":
+                System.out.println(printRank(serverMessage));
+                break;
+            case "CANNOTWHISPER":
+                System.out.println("You can not message " + split[1]);
+                break;
+            case "ERROR":
+                System.out.println("ERROR: " + split[1]);
+                break;
+            default:
+                System.out.println("UNKNOWN: " + serverMessage);
+                break;
         }
+
     }
 
     /**

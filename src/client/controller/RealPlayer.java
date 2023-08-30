@@ -115,7 +115,7 @@ public class RealPlayer extends AbstractPlayer {
     }
 
 
-    private Move suggestMove(Game game) {
+    public Move suggestMove(Game game) {
         Move winningMove = null;
         for (Move move : game.getValidMoves()) {
             Game hypotheticalGame = game.deepCopy(); // Assuming you have a deepCopy() method in the Game class

@@ -153,23 +153,6 @@ public class Board {
     }
 
     /**
-     * Checks if the entire board is empty
-     * @return true if the board is empty, false otherwise
-     **/
-    //@ensures \result == (\forall int i; 0 <= i && i < SIZE; (\forall int j; 0 <= j && j < SIZE; board[i][j] == Color.EMPTY));
-    //@pure;
-    public boolean isBoardEmpty() {
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                if (board[row][col] != Color.EMPTY) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * Swap a colored field and move it parallel to the main diagonal.
      * @param row Row of the colored field.
      * @param col Column of the colored field.
