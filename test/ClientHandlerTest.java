@@ -20,8 +20,8 @@ class ClientHandlerTest {
      */
     @Test
     void testClientHandler() throws IOException, InterruptedException {
-        ServerSocket serverSocket = new ServerSocket(0);
-        Server server = new Server(0);
+        ServerSocket serverSocket = new ServerSocket(1);
+        Server server = new Server(1);
         Socket socket = new Socket("localhost", serverSocket.getLocalPort());
         Socket clientSocket = serverSocket.accept();
 

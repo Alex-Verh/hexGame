@@ -127,7 +127,12 @@ public class Protocol {
         writer.flush();
     }
 
-    // Apply escape characters for special characters
+    /**
+     * Apply escape characters for special characters
+     * @param str string
+     * @return formatted string
+     */
+    //@requires !str.isEmpty();
     private String escape(String str) {
         return str.replace("\\", "\\\\").replace("~", "\\~");
     }

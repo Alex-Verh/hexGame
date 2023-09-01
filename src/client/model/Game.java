@@ -63,6 +63,7 @@ public class Game {
     /**
      * Switch to the next player.
      */
+    //@ensures currentPlayer == player1 || currentPlayer == player2;
     private void switchCurrentPlayer() {
         currentPlayer = (currentPlayer == player1) ? player2 : player1;
     }
@@ -72,6 +73,9 @@ public class Game {
      * @return A list where the first integer is the count of red fields
      * and the second integer is the count of blue fields.
      */
+    //@ensures \result.get(0) >= 0 || \result.get(0) < Board.SIZE;
+    //@ensures \result.get(1) >= 0 || \result.get(1) < Board.SIZE;
+    //@pure;
     public List<Integer> countFields() {
         int redFieldsCounter = 0;
         int blueFieldsCounter = 0;
@@ -113,6 +117,8 @@ public class Game {
      * Add valid moves for empty fields for current player
      * @param validMoves - list of valid moves
      */
+    //@requires validMoves != null;
+    //@ensures validMoves != null;
     private void addValidMoves(List<Move> validMoves) {
         validMoves.clear();
         for (int row = 0; row < Board.SIZE; row++) {
@@ -129,6 +135,9 @@ public class Game {
      * @param move that is checked
      * @return true || false
      */
+    //@requires move != null;
+    //@ensures getValidMoves().contains(move) || !getValidMoves().contains(move);
+    //@pure;
     public boolean isValidMove(Move move) {
         for (Move validMove : getValidMoves()) {
             if (validMove.hashCode() == move.hashCode()) {
@@ -143,6 +152,8 @@ public class Game {
      *
      * @param move The move to be made.
      */
+    //@requires move != null && !this.isFinished();
+    //@ensures getBoard().getFieldColor(move.getRow(), move.getCol()) != Color.EMPTY;
     public void makeMove(Move move) {
         // Check if move is valid
         if (move != null && isValidMove(move)) {
@@ -162,9 +173,6 @@ public class Game {
                 }
                 System.out.println("No RED piece to be swapped!");
             }
-            //DEBUG//
-            System.out.println("Move to be made: " + move + " by : " + move.getColor());
-            //DEBUG//
 
             // Place the player's color on the board
             board.setField(move.getRow(), move.getCol(), move.getColor());
@@ -190,8 +198,8 @@ public class Game {
      *
      * @return the winning player if one exists, null otherwise
      */
-    //@ ensures \result == player1 || \result == player2 || \result == null;
-    //@ pure;
+    //@ensures \result == player1 || \result == player2 || \result == null;
+    //@pure;
     public Player getWinner() {
         // Check for a winning path for Player 1 (assume they connect top to bottom)
         for (int col = 0; col < Board.SIZE; col++) {

@@ -37,11 +37,13 @@ public class Server implements Runnable{
 
     private final Map<String, Integer> rankings;
     //@private invariant rankings != null;
+
     /**
      * Initializes a new Server.
      * @param port the port number to listen on.
      */
     //@ requires port > 0 && port <= 65535;
+    //@ensures clients != null && players != null && queuedPlayers != null && games != null && rankings != null;
     public Server(int port) {
         this.port = port;
         this.clients = new ArrayList<>();
@@ -54,6 +56,7 @@ public class Server implements Runnable{
     /**
      * Starts the server to listen for client connections.
      */
+    //@pure;
     public void start() {
         Thread serverThread = new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -77,14 +80,18 @@ public class Server implements Runnable{
      * Adds a client to the server.
      * @param client adds the client to the server
      */
-    //@requires client != null && client.getName().length() <= 20;
+    //@requires client != null && client.getClientName().length() <= 20;
     //@ensures players.containsKey(client);
     public void addClient(ClientHandler client) {
         synchronized (players) {
-            players.put(client, client.getName());
+            players.put(client, client.getClientName());
         }
     }
 
+    /**
+     * Removes a client from the server.
+     * @param client
+     */
     //@requires client != null;
     /*@ensures !queuedPlayers.contains(client) &&
             !clients.contains(client.getClientSocket()) && !players.containsKey(client); */
@@ -106,6 +113,12 @@ public class Server implements Runnable{
         }
     }
 
+    /**
+     * Returns all users from the server.
+     * @return players' names
+     */
+    //@requires players != null;
+    //@pure;
     public synchronized List<String> getAllUsers() {
         List<String> userNames = new ArrayList<>();
         for (ClientHandler client : players.keySet()) {
@@ -141,6 +154,7 @@ public class Server implements Runnable{
     /**
      * Switches in or out of queue.
      * @param clientHandler the client to switch
+     * @throws IOException If there's an error adding/removing client from queue.
      */
     //@requires clientHandler != null;
     /*@ensures queuedPlayers.size() + 1 == \old(queuedPlayers.size()) ||
@@ -148,8 +162,7 @@ public class Server implements Runnable{
     public void switchQueue(ClientHandler clientHandler) throws IOException {
         if (queuedPlayers.contains(clientHandler)) {
             removeFromQueue(clientHandler);
-            //DEBUG
-            System.out.println("Remove client from queue");
+
         } else {
             addToQueue(clientHandler);
         }
@@ -161,13 +174,20 @@ public class Server implements Runnable{
      */
     //@requires clientHandler != null;
     //@ensures queuedPlayers.size() - 1 == \old(queuedPlayers.size());
-    public void removeFromQueue(ClientHandler clientHandler) throws IOException {
+    public void removeFromQueue(ClientHandler clientHandler) {
         synchronized (queuedPlayers) {
             queuedPlayers.remove(clientHandler);
         }
     }
 
-
+    /**
+     * Send global message.
+     * @param message itself.
+     * @param senderName the one who sent.
+     */
+    //@requires !message.isEmpty() && !senderName.isEmpty();
+    //@requires players != null;
+    //@pure;
     public synchronized void broadcastChatMessage(String message, String senderName) {
         // Loop through each client and send the chat message.
         for (ClientHandler client : players.keySet()) {
@@ -183,6 +203,11 @@ public class Server implements Runnable{
         }
     }
 
+    /**
+     * Get queue players.
+     * @return players
+     */
+    //@pure;
     public List<ClientHandler> getQueuedPlayers() {
         return queuedPlayers;
     }
@@ -190,14 +215,14 @@ public class Server implements Runnable{
     /**
      * Sends a whisper to a specific client.
      * @param data the message to send
-     * @param username the username of the sender
+     * @param senderUsername the username of the sender
      * @throws PlayerOfflineException if the user is not online
      * @throws PlayerChatLacking if the user is not able to be whispered to
      */
-    //@requires username.length() <= 20 && !username.isEmpty();
+    //@requires senderUsername.length() <= 20 && !senderUsername.isEmpty();
     //@requires !data.isEmpty();
     //@pure;
-    public void whisper(String data, String username, BufferedWriter socketOut)
+    public void whisper(String data, String senderUsername, BufferedWriter socketOut)
             throws PlayerOfflineException, PlayerChatLacking, IOException {
         String[] split = data.split("~");
         synchronized (players) {
@@ -209,16 +234,16 @@ public class Server implements Runnable{
                         // checks if the user can be whispered to
                         // else throws WhisperException
                         if (client.isChatEnabled()) {
-                            client.sendWhisper(data, username); // sends the whisper
+                            client.sendWhisper(data, senderUsername); // sends the whisper
                         } else {
-                            Protocol.sendCannotWhisper(socketOut, username);
-                            throw new PlayerChatLacking(username);
+                            Protocol.sendCannotWhisper(socketOut, split[1]);
+                            throw new PlayerChatLacking(split[1]);
                         }
                     }
                 }
             } else {
-                Protocol.sendCannotWhisper(socketOut, username);
-                throw new PlayerOfflineException(username);
+                Protocol.sendCannotWhisper(socketOut, split[1]);
+                throw new PlayerOfflineException(split[1]);
             }
         }
     }

@@ -13,6 +13,7 @@ public class Move {
     //@private invariant col >= 0 && col < Board.SIZE;
 
     private final Color color;
+    //@private invariant color == Color.EMPTY || color == Color.BLUE || color == Color.RED;
 
     /**
      * Constructs a new move.
@@ -71,6 +72,7 @@ public class Move {
      *
      * @return moveInfo
      */
+    //@pure;
     @Override
     public String toString() {
         int index = hashCode();

@@ -32,6 +32,7 @@ public class Protocol {
      * @throws IOException if there's an error writing the message.
      */
     //@ requires writer != null;
+    //@pure;
     public static void hello(BufferedWriter writer) throws IOException {
         sendMessage(writer, "HELLO~AlexServer~CHAT~RANK");
     }

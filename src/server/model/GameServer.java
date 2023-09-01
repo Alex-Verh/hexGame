@@ -57,8 +57,8 @@ public class GameServer implements Runnable {
         this.writer2 = player2.getSocketWriter();
         this.reader1 = new BufferedReader(player1.getPipedReader());
         this.reader2 = new BufferedReader(player2.getPipedReader());
-        this.player1 = player1.getName();
-        this.player2 = player2.getName();
+        this.player1 = player1.getClientName();
+        this.player2 = player2.getClientName();
     }
 
     /**
@@ -76,6 +76,8 @@ public class GameServer implements Runnable {
      *
      * @param move The move to be made.
      */
+    //@requires move != null && !this.isFinished();
+    //@ensures getBoard().getFieldColor(move.getRow(), move.getCol()) != Color.EMPTY;
     public void makeMove(Move move) {
         // Check if move is valid
         if (move != null && isValidMove(move)) {
@@ -109,6 +111,9 @@ public class GameServer implements Runnable {
      * @param move that is checked
      * @return true || false
      */
+    //@requires move != null;
+    //@ensures getValidMoves().contains(move) || !getValidMoves().contains(move);
+    //@pure;
     public boolean isValidMove(Move move) {
         for (Move validMove : getValidMoves()) {
             if (validMove.hashCode() == move.hashCode()) {
@@ -137,9 +142,6 @@ public class GameServer implements Runnable {
             // Add empty fields to valid moves
             addValidMoves(validMoves);
         }
-        //DEBUG
-        System.out.println(validMoves);
-        //////
         return validMoves;
     }
 
@@ -147,6 +149,8 @@ public class GameServer implements Runnable {
      * Add valid moves for empty fields for current player
      * @param validMoves - list of valid moves
      */
+    //@requires validMoves != null;
+    //@ensures validMoves != null;
     private void addValidMoves(List<Move> validMoves) {
         validMoves.clear();
         for (int row = 0; row < Board.SIZE; row++) {
@@ -163,6 +167,9 @@ public class GameServer implements Runnable {
      * @return A list where the first integer is the count of red fields
      * and the second integer is the count of blue fields.
      */
+    //@ensures \result.get(0) >= 0 || \result.get(0) < Board.SIZE;
+    //@ensures \result.get(1) >= 0 || \result.get(1) < Board.SIZE;
+    //@pure;
     public List<Integer> countFields() {
         int redFieldsCounter = 0;
         int blueFieldsCounter = 0;
@@ -273,6 +280,9 @@ public class GameServer implements Runnable {
         start();
     }
 
+    /**
+     * Starts the game session.
+     */
     //@pure;
     private void start() {
         //clear the readers/writers
@@ -325,7 +335,7 @@ public class GameServer implements Runnable {
     }
 
     /**
-     * starts a new game. Sends a new game message to both players.
+     * Starts a new game. Sends a new game message to both players.
      * @param writer the writer to send the message to
      */
     //@requires writer != null;

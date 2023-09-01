@@ -25,7 +25,10 @@ public class Board {
         }
     }
 
-    /* Prints the board with appropriate colors */
+    /**
+     *  Prints the board with appropriate colors
+     */
+    //@pure;
     public void displayBoard() {
         int size = SIZE;
         System.out.println(ANSI_RED + "====================================================================" + ANSI_RESET);
@@ -97,6 +100,7 @@ public class Board {
     //@requires 0 <= row && row < SIZE;
     //@requires 0 <= col && col < SIZE;
     //@ensures \result == board[row][col];
+    //@pure;
     public Color getFieldColor(int row, int col) {
 
         if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
@@ -157,6 +161,10 @@ public class Board {
      * @param row Row of the colored field.
      * @param col Column of the colored field.
      */
+    //@requires 0 <= row && row < SIZE;
+    //@requires 0 <= col && col < SIZE;
+    //@requires getFieldColor(row, col) != Color.RED;
+    //@ensures getFieldColor(row, col) != Color.EMPTY && getFieldColor(col, row) != Color.BLUE;
     public void swapField(int row, int col) {
         // Validate that the field contains a RED piece
         if (getFieldColor(row, col) != Color.RED) {

@@ -23,6 +23,10 @@ public class RealPlayer extends AbstractPlayer {
      * @param board the board of the game
      * @param name  the name of the player
      */
+    //@requires color == Color.RED || color == Color.BLUE || color == Color.EMPTY;
+    /*@requires (\forall int i; (i >= 0 && i < board.SIZE * board.SIZE);
+                    board.getFieldColor(i/board.SIZE, i%board.SIZE) != Color.EMPTY);    */
+    //@requires !name.isEmpty() && name.length() <= 20 && reader1 != null && reader2 != null;
     public RealPlayer(Color color, Board board, String name, BufferedReader reader1, BufferedReader reader2) {
         super(color, board, name);
         this.reader1 = reader1;
@@ -114,7 +118,13 @@ public class RealPlayer extends AbstractPlayer {
         }
     }
 
-
+    /**
+     * Sugessts a move by a random logic to a player.
+     * @param game is being played
+     * @return move
+     */
+    //@requires game != null && game.getBoard() != null && !game.isFinished();
+    //@ensures game.getValidMoves().contains(\result);
     public Move suggestMove(Game game) {
         Move winningMove = null;
         for (Move move : game.getValidMoves()) {

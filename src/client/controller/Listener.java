@@ -183,11 +183,4 @@ public class Listener implements Runnable {
         return result.toString();
     }
 
-    /**
-     * Shuts down the listener
-     */
-    //@ensures terminated == true;
-    public void terminate() {
-        terminated = true;
-    }
 }

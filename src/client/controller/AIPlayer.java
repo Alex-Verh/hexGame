@@ -23,7 +23,12 @@ public class AIPlayer extends AbstractPlayer {
      * @param color the color of the player
      * @param board the board of the game
      * @param name  the name of the player
+     * @param reader the reader to read from
      */
+    //@requires color == Color.RED || color == Color.BLUE || color == Color.EMPTY;
+    /*@requires (\forall int i; (i >= 0 && i < board.SIZE * board.SIZE);
+                    board.getFieldColor(i/board.SIZE, i%board.SIZE) != Color.EMPTY);    */
+    //@requires !name.isEmpty() && name.length() <= 20 && reader != null;
     public AIPlayer(Color color, Board board, String name, BufferedReader reader) {
         super(color, board, name);
         this.reader = reader;

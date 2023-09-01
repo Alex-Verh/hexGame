@@ -8,22 +8,71 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 
+/**
+ * A class that represents the Textual User Interface (TUI) for the client.
+ * It provides the client with options to interact with a server.
+ */
 public class ClientTUI implements Runnable {
 
     private final BufferedReader clientBufferedReader;
+    //@private invariant clientBufferedReader != null;
+
     private final BufferedReader serverBufferedReader;
+    //@private invariant serverBufferedReader != null;
+
     private final Protocol protocol;
+    //@private invariant protocol != null;
+
     private final String playerName;
+    //@private invariant playerName.length() < 20 && playerName.length() > 1;
+
     private final String playerType; // For AI or Human type.
+    //@private invariant !playerName.isEmpty();
 
+    /**
+     * Socket to manage the client-server connection.
+     */
     private static Socket socket;
+    //@private invariant socket != null;
 
+    /**
+     * Flag to determine if chat feature is supported by the server.
+     */
     private static boolean chat = false;
     //@private invariant chat == false || chat == true;
 
+    /**
+     * Flag to determine if rank feature is supported by the server.
+     */
     private static boolean rank = false;
     //@private invariant rank == false || rank == true;
 
+    /**
+     * Flag to determine if noise feature is supported by the server.
+     */
+    private static boolean noise = false;
+    //@private invariant noise == false || noise == true;
+
+    /**
+     * Flag to determine if challenge feature is supported by the server.
+     */
+    private static boolean challenge = false;
+    //@private invariant challenge == false || challenge == true;
+
+    /**
+     * Creates a new instance of the ClientTUI.
+     *
+     * @param clientReader Reader for the client input.
+     * @param serverReader Reader for the server input.
+     * @param protocol     The protocol to communicate with the server.
+     * @param playerName   The name of the player.
+     * @param playerType   Type of the player (AI or Human).
+     */
+    //@ requires clientReader != null && serverReader != null && protocol != null;
+    //@ requires playerName != null && !playerName.isEmpty();
+    //@ requires playerType.equals("AI") || playerType.equals("Human");
+    //@ ensures this.clientBufferedReader != null && this.serverBufferedReader != null;
+    //@ ensures this.protocol == protocol && this.playerName.equals(playerName) && this.playerType.equals(playerType);
     public ClientTUI(Reader clientReader, Reader serverReader, Protocol protocol, String playerName, String playerType) {
         this.serverBufferedReader = new BufferedReader(serverReader);
         this.clientBufferedReader = new BufferedReader(clientReader);
@@ -166,6 +215,16 @@ public class ClientTUI implements Runnable {
         return playerName;
     }
 
+    /**
+     * Gets the player type.
+     *
+     * @param clientInput The buffered reader to read user input.
+     * @return The player type, either 'AI' or 'Human'.
+     * @throws IOException if an I/O error occurs.
+     * @requires clientInput != null.
+     * @ensures \result.equals("AI") || \result.equals("Human");
+     * @pure;
+     */
     public static String getPlayerType(BufferedReader clientInput) {
 
         String playerType;
@@ -186,6 +245,13 @@ public class ClientTUI implements Runnable {
         return playerType;
     }
 
+    /**
+     * Handles the game playing functionality.
+     *
+     * @param board The game board.
+     * @param game The game instance to be played.
+     * @requires board != null && game != null && !game.isFinished();
+     */
     private void playGame(Board board, Game game) {
         while (!game.isFinished()) {
             board.displayBoard();
@@ -214,11 +280,19 @@ public class ClientTUI implements Runnable {
         printHelp();
     }
 
+    /**
+     * Initializes the game.
+     *
+     * @param board The game board.
+     * @param data Data from the server to identify player names.
+     * @return An instance of the initialized game.
+     * @requires board != null && !board.isBoardFull() && data != null;
+     * @ensures \result != null;
+     */
     public Game gameInit(Board board, String data) {
         String[] split = data.split("~");
         Player player1;
         Player player2;
-        System.out.println("DATA : " + data + " PLAYER NAME WE LOOK FOR: " + playerName);
         if (split[1].equals(playerName)) {
             player1 = createPlayer(Color.RED, board, playerName);
             player2 = new NetworkPlayer(player1.getColor().getOppositeColor(), board, split[2], serverBufferedReader);
@@ -234,6 +308,16 @@ public class ClientTUI implements Runnable {
         return new Game(board, player1, player2);
     }
 
+    /**
+     * Creates a player instance.
+     *
+     * @param color Color of the player.
+     * @param board The game board.
+     * @param playerName Name of the player.
+     * @return The created player, either AIPlayer or RealPlayer.
+     * @requires color != null && board != null && playerName != null;
+     * @ensures \result != null;
+     */
     private Player createPlayer(Color color, Board board, String playerName) {
         if (playerType.equalsIgnoreCase("AI")) {
             return new AIPlayer(color, board, playerName, serverBufferedReader);
@@ -242,12 +326,22 @@ public class ClientTUI implements Runnable {
         }
     }
 
+    /**
+     * Clears the BufferedReader.
+     *
+     * @param reader BufferedReader to be cleared.
+     * @throws IOException if an I/O error occurs.
+     * @requires reader != null;
+     */
     private void clearReader(BufferedReader reader) throws IOException {
         while (reader.ready()) {
             reader.readLine();
         }
     }
 
+    /**
+     * Implementation of the Runnable interface's run method.
+     */
     @Override
     public void run() {
         Board board = new Board();
@@ -303,12 +397,12 @@ public class ClientTUI implements Runnable {
 
 
     /**
-     * sets connection to the server, sets the protocol.
-     * and sets supported features
-     * @return the protocol
-     * @throws IOException if the socket fails
+     * Sets up communication protocol.
+     *
+     * @return Initialized protocol for communication.
+     * @throws IOException if connection to the server fails.
+     * @ensures \result != null;
      */
-    //@ensures \result != null;
     private static Protocol setup() throws IOException {
 
 
