@@ -324,7 +324,6 @@ public class Server implements Runnable{
                 Socket socket = serverSocket.accept();
                 synchronized (clients) {
                     clients.add(socket);
-                    System.out.println(clients.size() + " clients connected");
                 }
                 ClientHandler clientHandler = new ClientHandler(socket, this);
                 new Thread(clientHandler).start();

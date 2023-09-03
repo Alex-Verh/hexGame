@@ -45,7 +45,6 @@ public class RealPlayer extends AbstractPlayer {
     //@pure;
     @Override
     public Move move(Game game, Protocol protocol) {
-        System.out.println("It's your move, " + getName() + ".");
 
         Move playerMove;
         try {
@@ -53,7 +52,6 @@ public class RealPlayer extends AbstractPlayer {
             protocol.sendMove(playerMove.hashCode());
             String data = reader2.readLine();
             if (data.equals("GAMEOVER")) {
-                System.out.println("The game has been finished.");
                 return null;
             } else {
                 return new Move(Integer.parseInt(data.split("~")[1]) / Board.SIZE,

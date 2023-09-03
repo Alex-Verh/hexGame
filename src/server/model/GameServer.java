@@ -94,7 +94,6 @@ public class GameServer implements Runnable {
                         }
                     }
                 }
-                System.out.println("No RED piece to be swapped!");
             }
 
 
