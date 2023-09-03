@@ -16,11 +16,11 @@ class ServerTest {
      */
     @Test
     void testPlayGame() throws IOException {
-        Server server = new Server(1);
+        Server server = new Server(5);
         server.start();
         System.out.println("Connecting to server...");
-        Socket socket = new Socket("localhost", 1);
-        Socket socket2 = new Socket("localhost", 1);
+        Socket socket = new Socket("localhost", 5);
+        Socket socket2 = new Socket("localhost", 5);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         BufferedReader reader2 = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
@@ -60,89 +60,86 @@ class ServerTest {
         assertEquals("LOGIN", response);
         assertEquals("LOGIN", response2);
 
-        int i = 0;
-        while (i < 1) {
-            //Send QUEUE to server
-            writer.write("QUEUE");
-            writer.newLine();
-            writer.flush();
 
-            writer2.write("QUEUE");
-            writer2.newLine();
-            writer2.flush();
+        //Send QUEUE to server
+        writer.write("QUEUE");
+        writer.newLine();
+        writer.flush();
 
-            //Read NEWGAME from server
-            response = reader.readLine();
-            response2 = reader2.readLine();
+        writer2.write("QUEUE");
+        writer2.newLine();
+        writer2.flush();
 
-
-            String name1;
-            String name2;
-
-            BufferedWriter playerWriter1;
-            BufferedWriter playerWriter2;
-            if (response.equals("NEWGAME~name1~name2")) {
-                assertEquals("NEWGAME~name1~name2", response);
-                assertEquals("NEWGAME~name1~name2", response2);
-                name1 = "name1";
-                name2 = "name2";
-                playerWriter1 = writer;
-                playerWriter2 = writer2;
-            } else {
-                assertEquals("NEWGAME~name2~name1", response);
-                assertEquals("NEWGAME~name2~name1", response2);
-                name1 = "name1";
-                name2 = "name2";
-                playerWriter1 = writer2;
-                playerWriter2 = writer;
-            }
-
-            Board board = new Board();
-            Player player1 = new AIPlayer(Color.RED, board, name1, reader);
-            Player player2 = new AIPlayer(Color.BLUE, board, name2, reader2);
-            player1.setOpponent(player2);
-            player2.setOpponent(player1);
-            Game game = new Game(board, player1, player2);
+        //Read NEWGAME from server
+        response = reader.readLine();
+        response2 = reader2.readLine();
 
 
-            while (!game.isFinished()) {
-                Move move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
-                playerWriter1.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
-                playerWriter1.newLine();
-                playerWriter1.flush();
+        String name1;
+        String name2;
 
-                response = reader.readLine();
-                response2 = reader2.readLine();
-                assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
-                assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
-                game.makeMove(move);
-
-                if (game.isFinished()) {
-                    break;
-                }
-
-                move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
-                playerWriter2.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
-                playerWriter2.newLine();
-                playerWriter2.flush();
-
-                response = reader.readLine();
-                response2 = reader2.readLine();
-                assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
-                assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
-                game.makeMove(move);
-
-            }
-
-            response = reader.readLine();
-            response2 = reader2.readLine();
-
-            assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response);
-            assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response2);
-
-            assertTrue(game.isFinished());
-            i++;
+        BufferedWriter playerWriter1;
+        BufferedWriter playerWriter2;
+        if (response.equals("NEWGAME~name1~name2")) {
+            assertEquals("NEWGAME~name1~name2", response);
+            assertEquals("NEWGAME~name1~name2", response2);
+            name1 = "name1";
+            name2 = "name2";
+            playerWriter1 = writer;
+            playerWriter2 = writer2;
+        } else {
+            assertEquals("NEWGAME~name2~name1", response);
+            assertEquals("NEWGAME~name2~name1", response2);
+            name1 = "name1";
+            name2 = "name2";
+            playerWriter1 = writer2;
+            playerWriter2 = writer;
         }
+
+        Board board = new Board();
+        Player player1 = new AIPlayer(Color.RED, board, name1, reader);
+        Player player2 = new AIPlayer(Color.BLUE, board, name2, reader2);
+        player1.setOpponent(player2);
+        player2.setOpponent(player1);
+        Game game = new Game(board, player1, player2);
+
+
+        while (!game.isFinished()) {
+            Move move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
+            playerWriter1.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
+            playerWriter1.newLine();
+            playerWriter1.flush();
+
+            response = reader.readLine();
+            response2 = reader2.readLine();
+            assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
+            assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
+            game.makeMove(move);
+
+            if (game.isFinished()) {
+                break;
+            }
+
+            move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
+            playerWriter2.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
+            playerWriter2.newLine();
+            playerWriter2.flush();
+
+            response = reader.readLine();
+            response2 = reader2.readLine();
+            assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
+            assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
+            game.makeMove(move);
+
+        }
+
+        response = reader.readLine();
+        response2 = reader2.readLine();
+
+        assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response);
+        assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response2);
+
+        assertTrue(game.isFinished());
 
         socket.close();
         socket2.close();
