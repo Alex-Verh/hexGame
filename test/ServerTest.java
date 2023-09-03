@@ -18,16 +18,13 @@ class ServerTest {
     void testPlayGame() throws IOException {
         Server server = new Server(1);
         server.start();
-        //connect to server
         System.out.println("Connecting to server...");
         Socket socket = new Socket("localhost", 1);
         Socket socket2 = new Socket("localhost", 1);
 
-        //setup 2 Readers
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         BufferedReader reader2 = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
 
-        //Setup 2 Writers
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(socket2.getOutputStream()));
 
@@ -92,8 +89,8 @@ class ServerTest {
                 playerWriter1 = writer;
                 playerWriter2 = writer2;
             } else {
-                assertEquals("NEWGAME~name1~name2", response);
-                assertEquals("NEWGAME~name1~name2", response2);
+                assertEquals("NEWGAME~name2~name1", response);
+                assertEquals("NEWGAME~name2~name1", response2);
                 name1 = "name1";
                 name2 = "name2";
                 playerWriter1 = writer2;
@@ -108,57 +105,40 @@ class ServerTest {
             Game game = new Game(board, player1, player2);
 
 
-            //send moves to server
             while (!game.isFinished()) {
-                //get a random move
                 Move move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
-                //send move to server
                 playerWriter1.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
                 playerWriter1.newLine();
                 playerWriter1.flush();
 
-                //read move from server
                 response = reader.readLine();
                 response2 = reader2.readLine();
-                //check if the move is the same
                 assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
                 assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
                 game.makeMove(move);
-                //check if the game is over
+
                 if (game.isFinished()) {
                     break;
                 }
 
-                //get a random move
                 move = game.getValidMoves().get((int) Math.round(Math.random() * (game.getValidMoves().size() - 1)));
-                //send move to server
                 playerWriter2.write("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()));
                 playerWriter2.newLine();
                 playerWriter2.flush();
 
-                //read move from server
                 response = reader.readLine();
                 response2 = reader2.readLine();
-                //check if the move is the same
                 assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response);
                 assertEquals("MOVE~" + (move.getRow() * Board.SIZE + move.getCol()), response2);
-                //check if the game is over
                 game.makeMove(move);
 
             }
 
             response = reader.readLine();
             response2 = reader2.readLine();
-            //check if the game is over
-            if (game.getWinner() == null) {
-                //draw
-                assertEquals("GAMEOVER~DRAW", response);
-                assertEquals("GAMEOVER~DRAW", response2);
-            } else {
-                //victory
-                assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response);
-                assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response2);
-            }
+
+            assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response);
+            assertEquals("GAMEOVER~VICTORY~" + ((AbstractPlayer) game.getWinner()).getName(), response2);
 
             assertTrue(game.isFinished());
             i++;

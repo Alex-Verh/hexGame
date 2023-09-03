@@ -73,7 +73,6 @@ class GameTest {
 
     @Test
      void testGetWinner() {
-        // Assume Board.SIZE = 5 for simplicity
 
         // No winner at the start
         assertNull(game.getWinner());

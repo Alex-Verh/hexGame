@@ -203,14 +203,6 @@ public class Server implements Runnable{
         }
     }
 
-    /**
-     * Get queue players.
-     * @return players
-     */
-    //@pure;
-    public List<ClientHandler> getQueuedPlayers() {
-        return queuedPlayers;
-    }
 
     /**
      * Sends a whisper to a specific client.
@@ -226,13 +218,11 @@ public class Server implements Runnable{
             throws PlayerOfflineException, PlayerChatLacking, IOException {
         String[] split = data.split("~");
         synchronized (players) {
-            // checks if the user is online
-            // else throws OfflineException
+
             if (players.containsValue(split[1])) {
                 for (ClientHandler client : players.keySet()) {
                     if (client.getClientName().equals(split[1])) {
-                        // checks if the user can be whispered to
-                        // else throws WhisperException
+
                         if (client.isChatEnabled()) {
                             client.sendWhisper(data, senderUsername); // sends the whisper
                         } else {

@@ -54,7 +54,6 @@ public class AIPlayer extends AbstractPlayer {
 
             protocol.sendMove(moveAI.hashCode());
 
-            // Wait for server's response
             String data = reader.readLine();
 
             if (data.equals("GAMEOVER")) {

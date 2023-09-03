@@ -215,8 +215,6 @@ public class ClientHandler implements Runnable {
     /*@ requires pWriter != null && cmd != null;
     */
     private void handleMoveCommand(String cmd) throws IOException {
-        System.out.println("Sending response to client: " + cmd);
-
         pWriter.write(cmd + "\n");
         pWriter.flush();
     }

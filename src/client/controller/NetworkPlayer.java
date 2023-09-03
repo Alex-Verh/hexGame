@@ -4,8 +4,10 @@ import client.model.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
+/**
+ * Network player that takes moves from the writer.
+ */
 public class NetworkPlayer extends AbstractPlayer {
     private final BufferedReader serverReader;
     //@private invariant serverReader != null;
@@ -41,7 +43,6 @@ public class NetworkPlayer extends AbstractPlayer {
     @Override
     public Move move(Game game, Protocol protocol) {
         try {
-            // Read the move from the server
             String data = serverReader.readLine();
 
             if (data.equals("GAMEOVER")) {
@@ -50,7 +51,6 @@ public class NetworkPlayer extends AbstractPlayer {
                 String[] split = data.split("~");
                 int index = Integer.parseInt(split[1]);
 
-                //return the move
                 return new Move(index / Board.SIZE, index % Board.SIZE, getColor());
             }
         } catch (IOException e) {

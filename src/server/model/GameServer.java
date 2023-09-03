@@ -156,7 +156,14 @@ public class GameServer implements Runnable {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
                 if (board.isFieldEmpty(row, col)) {  // adjusting to 1-indexed
-                    validMoves.add(new Move(row, col, Color.EMPTY));
+                    validMoves.add(new Move(row, col, Color.RED));
+                }
+            }
+        }
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int col = 0; col < Board.SIZE; col++) {
+                if (board.isFieldEmpty(row, col)) {  // adjusting to 1-indexed
+                    validMoves.add(new Move(row, col, Color.BLUE));
                 }
             }
         }
@@ -285,7 +292,6 @@ public class GameServer implements Runnable {
      */
     //@pure;
     private void start() {
-        //clear the readers/writers
         if (clearReader(reader1)) {
             return;
         }
@@ -294,7 +300,6 @@ public class GameServer implements Runnable {
         }
 
         boolean disconnected;
-        //sends start message to both players
         newGame(writer1);
         newGame(writer2);
 
@@ -356,13 +361,12 @@ public class GameServer implements Runnable {
     //@requires reader != null;
     //@ensures \result == !reader.readLine().isEmpty();
     private boolean clearReader(BufferedReader reader) {
-        // clear BufferedReader for both players
         while (true) {
             try {
-                if (!reader.ready()) { // check if reader has any data
+                if (!reader.ready()) {
                     break;
                 }
-                reader.readLine(); // read and discard data if present
+                reader.readLine();
             } catch (IOException e) {
                 System.out.println("Error clearing Reader");
                 return true;
@@ -422,7 +426,6 @@ public class GameServer implements Runnable {
     //@ensures \result == isFinished();
     //@pure;
     private boolean gameOverMessage() {
-        // check if the game is over if so then send the end message VICTORY or DRAW
         if (isFinished()) {
             server.removeGameServer(this);
             finalMessage(writer1);
@@ -442,10 +445,8 @@ public class GameServer implements Runnable {
         try {
             if (Objects.equals(getWinner(), player1)) {
                 Protocol.victory(writer, player1);
-            } else if (Objects.equals(getWinner(), player2)) {
-                Protocol.victory(writer, player2);
             } else {
-                Protocol.draw(writer);
+                Protocol.victory(writer, player2);
             }
         } catch (IOException e) {
             System.out.println("Error sending game over message");

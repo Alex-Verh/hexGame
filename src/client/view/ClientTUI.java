@@ -14,6 +14,9 @@ import java.util.List;
  */
 public class ClientTUI implements Runnable {
 
+    private boolean waiting;
+    //@private invariant waiting == true || waiting == false;
+
     private final BufferedReader clientBufferedReader;
     //@private invariant clientBufferedReader != null;
 
@@ -79,6 +82,7 @@ public class ClientTUI implements Runnable {
         this.protocol = protocol;
         this.playerName = playerName;
         this.playerType = playerType;
+        this.waiting = true;
     }
 
 
@@ -117,6 +121,7 @@ public class ClientTUI implements Runnable {
             socket = new Socket(serverIpAddress, portNumber);
             Sound.backSound();
             Protocol protocol = setup(); // Assuming a default constructor for simplicity.
+
             PipedReader serverReader = new PipedReader();
             PipedWriter serverWriter = new PipedWriter(serverReader);
             Listener listener = new Listener(socket, serverWriter);
@@ -141,6 +146,12 @@ public class ClientTUI implements Runnable {
                 } else if (line.equalsIgnoreCase("QUEUE")) {
                     ClientTUI gameTUI = new ClientTUI(clientReader, serverReader, protocol, playerName, playerType);
                     gameTUI.run();  // This will start the game
+                    if (gameTUI != null && gameTUI.isWaiting()) {
+                        serverWriter.write("QUEUE" + "\n");
+                        serverWriter.flush();
+                    } else {
+                        System.out.println("You are already in a game");
+                    }
                 } else if (line.equalsIgnoreCase("RANK")) {
                     if (rank) {
                         protocol.sendRank();
@@ -172,6 +183,17 @@ public class ClientTUI implements Runnable {
             System.out.println("This server is not working.");
         }
     }
+
+    /**
+     * Gets state of client if he is waiting or not.
+     * @return true || false if client is waiting or not
+     */
+    //@ensures \result == true || \result == false;
+    //@pure;
+    public boolean isWaiting() {
+        return waiting;
+    }
+
 
     /**
      * Prints commands if asked.
@@ -384,7 +406,10 @@ public class ClientTUI implements Runnable {
                     System.out.println("Left the queue");
                     return;
                 }
+
             }
+            waiting = false;
+
 
             Game game = gameInit(board, data);
             playGame(board, game);

@@ -51,9 +51,7 @@ public class RealPlayer extends AbstractPlayer {
         try {
             playerMove = getMove(game);
             protocol.sendMove(playerMove.hashCode());
-            //reads the move from the server
             String data = reader2.readLine();
-            //check if the game is over
             if (data.equals("GAMEOVER")) {
                 System.out.println("The game has been finished.");
                 return null;

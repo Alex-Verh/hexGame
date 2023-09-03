@@ -43,7 +43,7 @@ class SProtocolTest {
      * @throws IOException if an I/O error occurs
      */
     @Test
-    void logedInTest() throws IOException {
+    void loggedInTest() throws IOException {
         Protocol.loggedIn(swriter);
         assertEquals("LOGIN", sreader.readLine());
     }
@@ -76,16 +76,6 @@ class SProtocolTest {
     void victoryTest() throws IOException {
         Protocol.victory(swriter, "user1");
         assertEquals("GAMEOVER~VICTORY~user1", sreader.readLine());
-    }
-
-    /**
-     * Tests the draw method.
-     * @throws IOException if an I/O error occurs
-     */
-    @Test
-    void drawTest() throws IOException {
-        Protocol.draw(swriter);
-        assertEquals("GAMEOVER~DRAW", sreader.readLine());
     }
 
     /**

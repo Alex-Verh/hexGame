@@ -26,7 +26,7 @@ class GameServerTest {
     @BeforeEach
     public void setup() throws IOException {
         ServerSocket serverSocket = new ServerSocket(0);
-        server = new Server(1);
+        server = new Server(0);
         Socket socket = new Socket("localhost", serverSocket.getLocalPort());
         Socket socket2 = new Socket("localhost", serverSocket.getLocalPort());
         player1 = new ClientHandler(socket, server);
@@ -116,12 +116,11 @@ class GameServerTest {
             }
         }
 
-
-        assertSame(game.getWinner(), player1.getName());
-
+        assertEquals(game.getWinner(), player2.getClientName());
+        game.getBoard().displayBoard();
+        System.out.println(game.getWinner());
         game = new GameServer(player1, player2, server);
-        //D3C5D6E3B4C3D2C4F4 - this is the move sequence that leads to the situation where
-        // there are no valid moves for the player and the game is over
+
         game.getBoard().setField(1, 0, Color.BLUE);
         game.getBoard().setField(1, 1, Color.BLUE);
         game.getBoard().setField(1, 2, Color.BLUE);
@@ -131,7 +130,9 @@ class GameServerTest {
         game.getBoard().setField(1, 6, Color.BLUE);
         game.getBoard().setField(1, 7, Color.BLUE);
         game.getBoard().setField(1, 8, Color.BLUE);
-        assertSame(game.getWinner(), player1.getName());
+
+
+        assertEquals(game.getWinner(), player1.getClientName());
     }
 
     /**

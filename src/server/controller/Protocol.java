@@ -93,17 +93,6 @@ public class Protocol {
     }
 
     /**
-     * Sends a draw message.
-     * @param writer BufferedWriter to send the message to.
-     * @throws IOException if there's an error writing the message.
-     */
-    //@ requires writer != null;
-    //@pure;
-    public static void draw(BufferedWriter writer) throws IOException {
-        sendMessage(writer, "GAMEOVER~DRAW");
-    }
-
-    /**
      * Sends a error message.
      * @param writer BufferedWriter to send the message to.
      * @throws IOException if there's an error writing the message.

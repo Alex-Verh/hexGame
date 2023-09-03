@@ -1,6 +1,4 @@
 import client.controller.Protocol;
-import client.model.Board;
-import client.model.Game;
 import client.view.ClientTUI;
 import org.junit.jupiter.api.Test;
 
@@ -26,40 +24,38 @@ class ClientTUITest {
      */
     @Test
     void testClient() throws IOException, InterruptedException {
-        // Create a server socket and connect to it
         ServerSocket serverSocket = new ServerSocket(0);
         Socket socket = new Socket("localhost", serverSocket.getLocalPort());
         Socket clientsocket = serverSocket.accept();
 
-        // Create a buffered reader to read from the server
         BufferedReader serverReceiver = new BufferedReader(new InputStreamReader(clientsocket.getInputStream()));
 
-        // Create a buffered writer to write to the server
         PipedWriter pipedWriter = new PipedWriter();
         PipedReader pipedReader = new PipedReader(pipedWriter);
 
-        // Create a buffered writer to write to the server
         BufferedWriter bufferedWriter = new BufferedWriter(pipedWriter);
         BufferedReader bufferedReader = new BufferedReader(pipedReader);
 
-        // Create a protocol and a MultiPlayerTUI
         Protocol protocol = new Protocol(socket);
         ClientTUI multiPlayerTUI = new ClientTUI
                 (bufferedReader, bufferedReader, protocol, "name", "AI");
-        // Start the thread
         Thread thread = new Thread(multiPlayerTUI);
         thread.start();
 
-        // Checks if the server receives the correct message
+        Thread.sleep(1000);
+
+        assertTrue(multiPlayerTUI.isWaiting());
+        Thread.sleep(1000);
+
         String message = serverReceiver.readLine();
         assertEquals("QUEUE", message);
 
-        // the piped writer sends newgame to the game
+        Thread.sleep(1000);
+
         bufferedWriter.write("NEWGAME~name~name2" + "\n");
         bufferedWriter.flush();
 
         Thread.sleep(1000);
-
 
         // the piped writer sends gameover to the game
         bufferedWriter.write("GAMEOVER" + "\n");
@@ -69,6 +65,7 @@ class ClientTUITest {
         // check if the thread is dead
         assertFalse(thread.isAlive());
 
+        clientsocket.close();
     }
 }
 
