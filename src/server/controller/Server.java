@@ -1,6 +1,5 @@
 package server.controller;
 
-import client.model.Player;
 import server.PlayerChatLacking;
 import server.PlayerOfflineException;
 import server.model.GameServer;

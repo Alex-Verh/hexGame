@@ -1,6 +1,8 @@
 package client.model;
 
-/* Represents the color on a board cell */
+/**
+ *  Represents the color on a board cell
+ *  */
 public enum Color {
     /**
      * Represents an empty space on the game board.
