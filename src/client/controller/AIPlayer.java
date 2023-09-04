@@ -46,7 +46,6 @@ public class AIPlayer extends AbstractPlayer {
     //@pure;
     @Override
     public Move move(Game game, Protocol protocol) {
-        System.out.println("It's AI move, " + getName() + ".");
 
         Move moveAI;
         try {
@@ -57,7 +56,6 @@ public class AIPlayer extends AbstractPlayer {
             String data = reader.readLine();
 
             if (data.equals("GAMEOVER")) {
-                System.out.println("The game has been finished.");
                 return null;
             } else {
                 return new Move(Integer.parseInt(data.split("~")[1]) / Board.SIZE,

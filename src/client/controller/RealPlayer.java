@@ -98,13 +98,18 @@ public class RealPlayer extends AbstractPlayer {
                             return swapMove;
                         }
                         int index = Integer.parseInt(command);
-                        Move move = new Move(index / Board.SIZE, index % Board.SIZE, getColor());
-
-                        if (!game.isValidMove(move)) {
-                            System.out.println("Please enter a valid index");
+                        if (index < 0 || index > 80) {
+                            System.out.println("Please enter a valid index.");
                         } else {
-                            return move;
+                            Move move = new Move(index / Board.SIZE, index % Board.SIZE, getColor());
+
+                            if (!game.isValidMove(move)) {
+                                System.out.println("Please enter a valid field.");
+                            } else {
+                                return move;
+                            }
                         }
+
                     }
 
                 }

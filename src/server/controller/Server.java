@@ -105,6 +105,7 @@ public class Server implements Runnable{
         synchronized (queuedPlayers) {
             queuedPlayers.remove(client);
         }
+
         try {
             client.getClientSocket().close();
         } catch (IOException e) {

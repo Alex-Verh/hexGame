@@ -125,14 +125,18 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-        processClientCommands();
+        try {
+            processClientCommands();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 
     /**
      * Processes commands from the client.
      */
     //@pure;
-    private void processClientCommands() {
+    private void processClientCommands() throws IOException {
         try {
             greetClient();
             authenticateUser();
@@ -143,6 +147,7 @@ public class ClientHandler implements Runnable {
             }
         } catch (IOException | PlayerChatLacking | PlayerOfflineException e) {
             System.out.println("Client disconnected.");
+            Protocol.gameover(getSocketWriter());
             terminateConnection();
         }
     }

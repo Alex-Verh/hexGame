@@ -33,6 +33,10 @@ Requirements:
 Java Runtime Environment (JRE)
 Proper network access to ensure the client can connect to the server
 
+Testing:
+To run all the tests, select test folder and click "Run all tests".
+In case of one test failure (e.g. ServerTest), the problem might be in port being occupied, try running it independently.
+
 Feedback & Contribution:
 
 Feedback and contributions are always welcome. Feel free to open issues or submit pull requests as you see fit.

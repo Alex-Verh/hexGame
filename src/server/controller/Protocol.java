@@ -92,6 +92,17 @@ public class Protocol {
     }
 
     /**
+     * Sends a gameover message.
+     * @param writer BufferedWriter to send the message to.
+     * @throws IOException if there's an error writing the message.
+     */
+    //@ requires writer != null;
+    //@pure;
+    public static void gameover(BufferedWriter writer) throws IOException {
+        sendMessage(writer, "GAMEOVER");
+    }
+
+    /**
      * Sends a error message.
      * @param writer BufferedWriter to send the message to.
      * @throws IOException if there's an error writing the message.
